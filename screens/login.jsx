@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const onPressSignUp = () => {
     navigation.navigate('register');
@@ -28,10 +28,12 @@ const Login = ({ navigation }) => {
 
     try {
       const response = await axios.post('http://192.168.52.122:8000/login', user);
-      console.log(response);
       const token = response.data.token;
+      const userInfo=email;
+      console.log(userInfo)
+      AsyncStorage.setItem('userEmail', userInfo)
       await AsyncStorage.setItem('authToken', token);
-      navigation.navigate('home');
+      navigation.navigate('BottomTabs');
     } catch (err) {
       Alert.alert("Login Failed", "Invalid email or password");
       console.log(err);

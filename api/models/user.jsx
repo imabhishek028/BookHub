@@ -15,10 +15,18 @@ const userSchema = new mongoose.Schema({
         required: true,
 
     },
-    // verified: {
-    //     type: Boolean,
-    //     default: false
-    // },
+    age:{
+        type:Number,
+        default:null
+    },
+    phone:{
+        type:Number,
+        default:null
+    },
+    gender:{
+        type:String,
+        default:null
+    },
     verificationToken: String,
     orders: [
         {

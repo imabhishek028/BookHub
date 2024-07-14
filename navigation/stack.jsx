@@ -13,6 +13,10 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { scale } from 'react-native-size-matters';
 import MyBooks from '../screens/MyBooks';
+import BuyHistory from '../screens/BuyHistory';
+import Cart from '../screens/Cart';
+import CreateBook from '../screens/CreateBook';
+import MyCollections from '../screens/MyCollections';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -25,12 +29,12 @@ const BottomTabs = () => {
           backgroundColor: '#EDEADE',
           paddingBottom: scale(5),
           paddingTop: scale(5),
-          height:scale(50),
+          height: scale(50),
         },
         tabBarActiveTintColor: '#041E42',
         tabBarLabelStyle: {
           fontSize: scale(11),
-          fontWeight:'bold'
+          fontWeight: 'bold'
         },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -38,10 +42,8 @@ const BottomTabs = () => {
           if (route.name === 'Home') {
             iconName = 'home';
             color = focused ? '#041E42' : 'gray';
-          } else if (route.name === 'Filter Books') {
-            iconName = 'filter';
-            color = focused ? '#041E42' : 'gray';
-          } else if (route.name === 'About Me') {
+          }
+          else if (route.name === 'About Me') {
             iconName = 'user';
             color = focused ? '#041E42' : 'gray';
           }
@@ -50,11 +52,7 @@ const BottomTabs = () => {
             color = focused ? '#041E42' : 'gray';
           }
 
-          if (route.name === 'Filter Recipes') {
-            return <FontAwesome6 name={iconName} size={scale(22)} color={color} />;
-          } else {
-            return <FontAwesome5 name={iconName} size={scale(22)} color={color} />;
-          }
+          return <FontAwesome5 name={iconName} size={scale(22)} color={color} />
         },
       })}
     >
@@ -63,39 +61,32 @@ const BottomTabs = () => {
         component={Homescreen}
         options={{
           tabBarLabel: 'Home',
-          title:'BOOK SHELF',
+          title: 'BOOK SHELF',
           headerTintColor: '#041E42',
           headerTitleStyle: {
             fontWeight: 'bold',
-            fontSize:scale(18),
-          },
-        }}
-      />
-       <Tab.Screen
-        name='MyBooks'
-        component={MyBooks}
-        options={{
-          tabBarLabel: 'My Books',
-          title:'MY BOOKS',
-          headerTintColor: '#041E42',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontSize:scale(18),
+            fontSize: scale(18),
           },
         }}
       />
       <Tab.Screen
-        name='Filter Books'
-        component={FilterBooks}
+        name='MyBooks'
+        component={MyBooks}
         options={{
-          tabBarLabel: 'Filter Books',
+          tabBarLabel: 'My Books',
+          title: 'MY BOOKS',
+          headerTintColor: '#041E42',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: scale(18),
+          },
         }}
       />
       <Tab.Screen
         name='About Me'
         component={UserProfile}
         options={{
-          headerShown:false,
+          headerShown: false,
           tabBarLabel: 'Profile',
         }}
       />
@@ -106,10 +97,14 @@ const BottomTabs = () => {
 export default function StackNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='BottomTabs'>
-        {/* <Stack.Screen name='login' component={Login} options={{headerShown:false}}/>
-            <Stack.Screen name='register' component={Register} options={{headerShown:false}}/> */}
+      <Stack.Navigator initialRouteName='login'>
+        <Stack.Screen name='login' component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name='register' component={Register} options={{ headerShown: false }} />
         <Stack.Screen name='BottomTabs' component={BottomTabs} options={{ headerShown: false }} />
+        <Stack.Screen name='Cart' component={Cart} options={{ headerShown: false }} />
+        <Stack.Screen name='CreateBook' component={CreateBook} options={{ headerShown: false }} />
+        <Stack.Screen name='MyCollections' component={MyCollections} options={{ headerShown: false }} />
+        <Stack.Screen name='BuyHistory' component={BuyHistory} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

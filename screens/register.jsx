@@ -29,7 +29,7 @@ const Register = ({ navigation }) => {
         setEmail("")
         setName("")
         setPassword("")
-        navigation.replace('home');
+        navigation.replace('BottomTabs');
       }).catch((error) => {
         console.log(`Error in the end ${error}`)
         Alert.alert("Registration failed!","Registration has failed, kindly try again")

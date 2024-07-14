@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
+
 const app = express();
 const port = 8000;
 app.use(cors());
@@ -38,7 +39,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
     service: "gmail",
     auth: {
       user: "imabhishek028@gmail.com",
-      pass: "gunq jmln msmz egto" 
+      pass: "gunq jmln msmz egto"
     }
   });
 
@@ -90,7 +91,6 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-
     const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '2h' });
     res.status(200).json({ message: "Login Successful", token });
 
@@ -99,3 +99,47 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: "Error logging in" });
   }
 });
+
+//end point to get UserInfo for Profile
+app.get('/userProfile', async (req, res) => {
+  try {
+    const { email } = req.query;
+    console.log('Email:', email);
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    const userInfo = await User.findOne({ email });
+    if (!userInfo) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json(userInfo);
+  } catch (err) {
+    console.error(`Error getting data: ${err.message}`);
+    res.status(500).json({ message: "Error getting User Info" });
+  }
+});
+
+//endpoint to save in user data 
+app.post('/updateUserProfile', async (req, res) => {
+  try {
+      const { email, name, age, gender, phone } = req.body;
+      if (!email) {
+          return res.status(400).json({ message: "Email is required" });
+      }
+      const userInfo = await User.findOne({ email });
+      if (!userInfo) {
+          return res.status(404).json({ message: "User not found" });
+      }
+      userInfo.name = name;
+      userInfo.age = age;
+      userInfo.gender = gender;
+      userInfo.phone = phone;
+      await userInfo.save();
+      res.status(200).json({ message: 'User updated successfully' });
+  } catch (err) {
+      console.error(`Error updating data: ${err.message}`);
+      res.status(500).json({ message: "Error updating user info" });
+  }
+});
+
+

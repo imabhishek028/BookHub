@@ -1,5 +1,5 @@
-import { SafeAreaView, StyleSheet, Text, View, StatusBar, TextInput, Keyboard, Image, ActivityIndicator } from 'react-native'
-import React, { useState } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, StatusBar, TextInput, Keyboard, Image, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -7,7 +7,7 @@ import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 
 const Homescreen = () => {
 
-  const [search, setSearch] = useState('The Lord of the Rings');
+  const [search, setSearch] = useState('');
   const [bookData, setBookData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -15,12 +15,22 @@ const Homescreen = () => {
     Keyboard.dismiss();
     setLoading(true);
     try {
-      const response = await axios.get(`https://openlibrary.org/search.json?title=${search}&limit=5`);
-      const books = response.data.docs.map(book => ({
-        title: book.title,
-        author: book.author_name ? book.author_name[0] : 'Unknown Author',
-        firstPublishYear: book.first_publish_year,
-        coverImage: book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` : null
+      const response = await axios.get('https://www.googleapis.com/books/v1/volumes', {
+        params: {
+          q: search,
+          maxResults: 20,
+          key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
+        }
+      });
+      const books = response.data.items.map(item => ({
+        title: item.volumeInfo.title,
+        author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : 'Unknown Author',
+        publishedDate: item.volumeInfo.publishedDate,
+        description: item.volumeInfo.description || 'No description available',
+        coverImage: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : null,
+        price: item.saleInfo.listPrice ? `${item.saleInfo.listPrice.amount} ${item.saleInfo.listPrice.currencyCode}` : 'Price not available',
+        rating: item.volumeInfo.averageRating || 'No rating',
+        ratingsCount: item.volumeInfo.ratingsCount || '0',
       }));
       setBookData(books);
     } catch (error) {
@@ -40,7 +50,7 @@ const Homescreen = () => {
             style={styles.coverImages}
             resizeMode='contain'
           />
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, width:scale(50) }}>
             <View style={styles.bookTitleView}>
               <Text style={styles.bookTitle}>{item.title}</Text>
             </View>
@@ -49,8 +59,13 @@ const Homescreen = () => {
               <Text style={styles.bookAuthor}>{item.author}</Text>
             </View>
             <View style={styles.publishYearView}>
-              <Text style={styles.publishYearText}>First Published:</Text>
-              <Text style={styles.yearText}> {item.firstPublishYear || 'N/A'}</Text>
+              <Text style={styles.publishYearText}>Published:</Text>
+              <Text style={styles.yearText}> {item.publishedDate || 'N/A'}</Text>
+            </View>
+            <View style={styles.ratingView}>
+              <Text style={styles.ratingText}>Rating:</Text>
+              <Text style={styles.ratingValue}>{item.rating}</Text>
+              <Text style={styles.ratingCount}>({item.ratingsCount})</Text>
             </View>
           </View>
         </View>
@@ -63,7 +78,7 @@ const Homescreen = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.inputView}>
         <TextInput
-          placeholder='Search Book...'
+          placeholder='Search Book or Author...'
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
@@ -143,6 +158,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: scale(5),
+    width:scale(160)
   },
   publishYearView: {
     marginTop: scale(5),
@@ -155,5 +171,24 @@ const styles = StyleSheet.create({
   yearText:{
     fontSize: scale(12),
     color: '#041E42',
+  },
+  ratingView: {
+    marginTop: scale(5),
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  ratingText: {
+    fontSize: scale(12),
+    color: 'gray',
+  },
+  ratingValue: {
+    fontSize: scale(12),
+    color: '#041E42',
+    marginLeft: scale(5),
+  },
+  ratingCount: {
+    fontSize: scale(12),
+    color: 'gray',
+    marginLeft: scale(5),
   }
 });
