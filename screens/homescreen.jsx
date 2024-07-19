@@ -5,7 +5,7 @@ import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 
-const Homescreen = ({navigation}) => {
+const Homescreen = ({navigation, route}) => {
 
   const [search, setSearch] = useState('');
   const [bookData, setBookData] = useState([]);

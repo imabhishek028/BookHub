@@ -5,6 +5,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../assets/utils/axiosConfig';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -20,28 +21,23 @@ const Login = ({ navigation }) => {
       Alert.alert("Error", "Please fill in both email and password");
       return;
     }
-//192.168.242.122
     const user = {
       email: email.trim(),
       password: password.trim()
     };
-    // console.log(user);
     try {
-      const response = await axios.post('http://192.168.242.122:8000/login', {
-        user
-      });
-      // console.log(response);
+      const response = await axiosInstance.post('/login', user);
       const token = response.data.token;
       const userInfo = email;
-      // console.log(userInfo)
-      AsyncStorage.setItem('userEmail', userInfo)
+      await AsyncStorage.setItem('userEmail', userInfo);
       await AsyncStorage.setItem('authToken', token);
       navigation.navigate('BottomTabs');
     } catch (err) {
       Alert.alert("Login Failed", "Invalid email or password");
-      console.log(err.request);
+      console.log(err.request || err.message || err);
     }
-  }
+  };
+  
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);

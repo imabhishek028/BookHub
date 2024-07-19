@@ -1,10 +1,11 @@
-import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Image, } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ImagePicker from 'react-native-image-crop-picker';
+import axiosInstance from '../assets/utils/axiosConfig';
 
 
 const UserProfile = () => {
@@ -60,6 +61,7 @@ const UserProfile = () => {
                 gender: gender,
                 phone: phone,
             });
+            Alert.alert("Updated!","Profile has now been updated")
         } catch (err) {
             console.log('Error saving user info:', err);
         }

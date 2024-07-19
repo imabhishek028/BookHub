@@ -41,29 +41,29 @@ const generateSecretKey = () => {
 
 const secretKey = generateSecretKey();
 
-// const sendVerificationEmail = async (email, verificationToken) => {
-//   const transporter = nodemailer.createTransport({
-//     service: "gmail",
-//     auth: {
-//       user: "imabhishek028@gmail.com",
-//       pass: "gunq jmln msmz egto"
-//     }
-//   });
+const sendVerificationEmail = async (email, verificationToken) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "imabhishek028@gmail.com",
+      pass: "gunq jmln msmz egto"
+    }
+  });
 
-//   const mailOptions = {
-//     from: "bookhub.com <imabhishek028@gmail.com>",
-//     to: email,
-//     subject: 'Email Verification',
-//     text: `Please Click on the link to verify your email: http://192.168.52.122:8000/verify/${verificationToken}`,
-//   };
+  const mailOptions = {
+    from: "bookhub.com <imabhishek028@gmail.com>",
+    to: email,
+    subject: 'Email Verification',
+    text: `Please Click on the link to verify your email: http://192.168.52.122:8000/verify/${verificationToken}`,
+  };
 
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     console.log('Verification email sent');
-//   } catch (error) {
-//     console.log(`Error sending mail: ${error}`);
-//   }
-// };
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Verification email sent');
+  } catch (error) {
+    console.log(`Error sending mail: ${error}`);
+  }
+};
 
 // Endpoint to register
 app.post('/register', async (req, res) => {
@@ -85,7 +85,7 @@ app.post('/register', async (req, res) => {
 // Endpoint to login
 app.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body.user;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User Not Found" });
@@ -98,8 +98,8 @@ app.post('/login', async (req, res) => {
     res.status(200).json({ message: "Login Successful", token });
 
   } catch (error) {
-    console.log(`Error logging in: ${error}`);
-    res.status(500).json({ message: "Error logging in" });
+    console.log(`Error logging in: ${error.response}`);
+    res.status(500).json({ message: `Error logging in ${error}` });
   }
 });
 

@@ -98,8 +98,8 @@ export default function StackNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='login'>
-        {/* <Stack.Screen name='login' component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name='register' component={Register} options={{ headerShown: false }} /> */}
+        <Stack.Screen name='login' component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name='register' component={Register} options={{ headerShown: false }} />
         <Stack.Screen name='BottomTabs' component={BottomTabs} options={{ headerShown: false }} />
         <Stack.Screen name='Cart' component={Cart} options={{ headerShown: false }} />
         <Stack.Screen name='CreateBook'
@@ -113,7 +113,7 @@ export default function StackNavigator() {
               fontSize: scale(18),
             }
           }} />
-           <Stack.Screen name='BookDetails'
+           {/* <Stack.Screen name='BookDetails'
           component={BookDetails}
           options={{
             tabBarLabel: 'Details',
@@ -123,7 +123,7 @@ export default function StackNavigator() {
               fontWeight: 'bold',
               fontSize: scale(18),
             }
-          }} />
+          }} /> */}
         <Stack.Screen name='BuyHistory' component={BuyHistory} options={{ headerShown: false }} />
         <Stack.Screen name='Favourites' component={Favourites} options={{ headerShown: false }} />
       </Stack.Navigator>
