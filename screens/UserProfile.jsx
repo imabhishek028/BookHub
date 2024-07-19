@@ -54,7 +54,7 @@ const UserProfile = () => {
     const onSave = async () => {
         setEditingField('');
         try {
-            const res = await axios.post('http://192.168.52.122:8000/updateUserProfile', {
+            const res = await axiosInstance.post('/updateUserProfile', {
                 email: email,
                 name: name,
                 age: age,
