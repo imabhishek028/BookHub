@@ -7,16 +7,16 @@ import Register from '../screens/register';
 import 'react-native-gesture-handler';
 import Homescreen from '../screens/homescreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import FilterBooks from '../screens/FilterBooks';
 import UserProfile from '../screens/UserProfile';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { scale } from 'react-native-size-matters';
 import MyBooks from '../screens/MyBooks';
 import BuyHistory from '../screens/BuyHistory';
 import Cart from '../screens/Cart';
 import CreateBook from '../screens/CreateBook';
-import MyCollections from '../screens/MyCollections';
+import Favourites from '../screens/Favourites';
+import BookDetails from '../screens/BookDetails';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -98,13 +98,34 @@ export default function StackNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='login'>
-        <Stack.Screen name='login' component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name='register' component={Register} options={{ headerShown: false }} />
+        {/* <Stack.Screen name='login' component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name='register' component={Register} options={{ headerShown: false }} /> */}
         <Stack.Screen name='BottomTabs' component={BottomTabs} options={{ headerShown: false }} />
         <Stack.Screen name='Cart' component={Cart} options={{ headerShown: false }} />
-        <Stack.Screen name='CreateBook' component={CreateBook} options={{ headerShown: false }} />
-        <Stack.Screen name='MyCollections' component={MyCollections} options={{ headerShown: false }} />
+        <Stack.Screen name='CreateBook'
+          component={CreateBook}
+          options={{
+            tabBarLabel: 'My Books',
+            title: 'Create Book',
+            headerTintColor: '#041E42',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              fontSize: scale(18),
+            }
+          }} />
+           <Stack.Screen name='BookDetails'
+          component={BookDetails}
+          options={{
+            tabBarLabel: 'Details',
+            title: 'Details',
+            headerTintColor: '#041E42',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              fontSize: scale(18),
+            }
+          }} />
         <Stack.Screen name='BuyHistory' component={BuyHistory} options={{ headerShown: false }} />
+        <Stack.Screen name='Favourites' component={Favourites} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

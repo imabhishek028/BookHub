@@ -28,12 +28,6 @@ const userSchema = new mongoose.Schema({
         default:null
     },
     verificationToken: String,
-    orders: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Order'
-        }
-    ],
     createdAt: {
         type: Date,
         default: Date.now
@@ -41,7 +35,28 @@ const userSchema = new mongoose.Schema({
     photo:{
         type:String,
         default:null
-    }
+    },
+    createdBooks: [
+        {
+            title: {
+                type: String,
+            },
+            author: {
+                type: String,
+            },
+            genre: {
+                type: String,
+               
+            },
+            description: {
+                type: String,
+              
+            },
+            coverImage: {
+                type: String,
+            }
+        }
+    ]
 })
 
 const User = mongoose.model("User", userSchema)

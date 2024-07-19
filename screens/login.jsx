@@ -20,23 +20,26 @@ const Login = ({ navigation }) => {
       Alert.alert("Error", "Please fill in both email and password");
       return;
     }
-
+//192.168.242.122
     const user = {
       email: email.trim(),
       password: password.trim()
     };
-
+    // console.log(user);
     try {
-      const response = await axios.post('http://192.168.52.122:8000/login', user);
+      const response = await axios.post('http://192.168.242.122:8000/login', {
+        user
+      });
+      // console.log(response);
       const token = response.data.token;
-      const userInfo=email;
-      console.log(userInfo)
+      const userInfo = email;
+      // console.log(userInfo)
       AsyncStorage.setItem('userEmail', userInfo)
       await AsyncStorage.setItem('authToken', token);
       navigation.navigate('BottomTabs');
     } catch (err) {
       Alert.alert("Login Failed", "Invalid email or password");
-      console.log(err);
+      console.log(err.request);
     }
   }
 
@@ -193,6 +196,6 @@ const styles = StyleSheet.create({
   },
   toggleButton: {
     padding: scale(10),
-   marginLeft:scale(0)
+    marginLeft: scale(0)
   }
 });

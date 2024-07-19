@@ -5,7 +5,7 @@ import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 
-const Homescreen = () => {
+const Homescreen = ({navigation}) => {
 
   const [search, setSearch] = useState('');
   const [bookData, setBookData] = useState([]);
@@ -23,6 +23,7 @@ const Homescreen = () => {
         }
       });
       const books = response.data.items.map(item => ({
+        objectid:item.id,
         title: item.volumeInfo.title,
         author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : 'Unknown Author',
         publishedDate: item.volumeInfo.publishedDate,
@@ -40,10 +41,18 @@ const Homescreen = () => {
     }
   }
 
+  const onPressHandler=(item)=>{
+    const clickedBookId=item.objectid
+    console.log(clickedBookId)
+     navigation.navigate('BookDetails',{clickedBookId})
+  }
+
   const renderItem = ({ item }) => {
     const defaultImage = 'https://via.placeholder.com/100x160.png?text=No+Image';
     return (
-      <TouchableOpacity style={styles.renderItem}>
+      <TouchableOpacity 
+      style={styles.renderItem}
+      onPress={()=>onPressHandler(item)}>
         <View style={{ flexDirection: 'row', gap: scale(20) }}>
           <Image
             source={{ uri: item.coverImage || defaultImage }}

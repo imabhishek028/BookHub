@@ -4,6 +4,7 @@ import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import ImagePicker from 'react-native-image-crop-picker';
 
 
 const UserProfile = () => {
@@ -16,7 +17,14 @@ const UserProfile = () => {
 
 
     const selectPhoto = () => {
-        
+        ImagePicker.openPicker({
+            width: 300,
+            height: 400,
+            cropping: true,
+            includeBase64:true
+          }).then(image => {
+            console.log(image);
+          });
     }
 
     useEffect(() => {
@@ -25,7 +33,7 @@ const UserProfile = () => {
                 const userEmail = await AsyncStorage.getItem('userEmail');
                 if (userEmail) {
                     setEmail(userEmail);
-                    const response = await axios.get('http://192.168.52.122:8000/userProfile', {
+                    const response = await axios.get('http://192.168.242.122:8000/userProfile', {
                         params: { email: userEmail }
                     });
                     const userInfo = response.data;
@@ -35,7 +43,7 @@ const UserProfile = () => {
                     setPhone(userInfo.phone || '');
                 }
             } catch (err) {
-                console.log('Error fetching user info:', err);
+                console.log('Error fetching user info:', err.response);
             }
         };
 

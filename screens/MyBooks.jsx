@@ -3,7 +3,7 @@ import React from 'react'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { scale } from 'react-native-size-matters'
 
-const MyBooks = () => {
+const MyBooks = ({navigation}) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ flexDirection: 'column' }}>
@@ -11,7 +11,7 @@ const MyBooks = () => {
                     <View style={styles.touchableView}>
                         <TouchableOpacity>
                             <Text style={styles.touchableText}>
-                                My Collections
+                                Favourites
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -25,7 +25,10 @@ const MyBooks = () => {
                 </View>
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.touchableView}>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                        onPress={()=>{
+                          navigation.navigate('CreateBook')
+                        }}>
                             <Text style={styles.touchableText}>
                                 Create Book
                             </Text>
@@ -43,7 +46,7 @@ const MyBooks = () => {
             <View>
                 <View style={styles.favTextView}>
                     <Text style={styles.favText}>
-                        Favourites!
+                        My Collections!
                     </Text>
                 </View>
             </View>

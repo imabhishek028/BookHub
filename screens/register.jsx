@@ -22,7 +22,7 @@ const Register = ({ navigation }) => {
       password: password.trim()
     }
   
-    axios.post('http://192.168.52.122:8000/register', user)
+    axios.post('http://localhost:8000/register', user)
       .then((response) => {
         console.log(response)
         Alert.alert("Registered Successfully!", 'You have registered successfully, Reading Rampage on!')

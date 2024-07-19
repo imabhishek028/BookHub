@@ -2,40 +2,36 @@ const mongoose = require('mongoose')
 
 const orderSchema = new mongoose.Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: String,
+        required: true,
+        unique: true,
     },
-    products: [
+    createdBooks: [
         {
-            name: {
+            title: {
                 type: String,
                 required: true
             },
-            quantity: {
-                type: Number,
+            author: {
+                type: String,
                 required: true
             },
-            price: {
-                type: Number,
+            genre: {
+                type: String,
                 required: true
             },
-            image: {
+            description: {
+                type: String,
+                required: true
+            },
+            coverImage: {
                 type: String,
                 required: true
             }
         }
-    ],
-    totalPrice: {
-        type: String,
-        required: true
-    },
-    createdAt:{
-        type:Date,
-        default:Date.now,
-    }
+    ]
 })
 
-const Order=mongoose.model("Order", orderSchema)
+const Order = mongoose.model("Order", orderSchema)
 
-module.exports=Order
+module.exports = Order
