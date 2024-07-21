@@ -185,4 +185,16 @@ app.post('/createBook', async (req, res) => {
   }
 });
 
+app.get('/getCurrentCollections', async(req,res)=>{
+  try{
+  const {email}= req.query;
+  const user=await User.findOne({email:email})
+  const createdBooks=user.createdBooks;
+  return res.status(200).json(createdBooks)
+  }catch(err){
+    console.error('Error getting collections:', err);
+    res.status(500).send({err });
+  }
+})
+
 
