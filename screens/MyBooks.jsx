@@ -1,6 +1,6 @@
 import { SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 import { scale } from 'react-native-size-matters'
 
 const MyBooks = ({navigation}) => {
@@ -48,6 +48,9 @@ const MyBooks = ({navigation}) => {
                     <Text style={styles.favText}>
                         My Collections!
                     </Text>
+                    <ScrollView>
+                        
+                    </ScrollView>
                 </View>
             </View>
         </SafeAreaView>

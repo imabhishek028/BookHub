@@ -16,8 +16,9 @@ import { scale } from 'react-native-size-matters';
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../assets/utils/axiosConfig';
 
-const CreateBook = () => {
+const CreateBook = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [genre, setGenre] = useState('');
@@ -33,6 +34,7 @@ const CreateBook = () => {
         console.log('ImagePicker Error: ', response.errorCode);
       } else {
         setImageBase64(response.assets[0].base64);
+        console.log(imageBase64)
       }
     });
   };
@@ -63,16 +65,17 @@ const CreateBook = () => {
             author,
             genre,
             description,
-            coverImage: `data:image/jpeg;base64,${imageBase64}`,
+            coverImage: imageBase64,
           },
         };
-
-        const response = await axios.post('http://localhost:8000/createBook', bookData);
+  
+        const response = await axiosInstance.post('/createBook', bookData);
         if (response.status === 200) {
           Alert.alert('Success', 'Book saved successfully');
         } else {
           Alert.alert('Error', 'Failed to save the book');
         }
+        navigation.goBack()
       } catch (error) {
         console.error('Error saving book:', error);
         Alert.alert('Error', 'Failed to save the book');
@@ -81,10 +84,10 @@ const CreateBook = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.inner}>
-          <TouchableOpacity onPress={selectPhoto} style={styles.imagePicker}>
+          <TouchableOpacity  style={styles.imagePicker} onPress={selectPhoto}>
             {imageBase64 ? (
               <Image
                 source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}

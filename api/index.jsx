@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
@@ -6,6 +7,16 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const morgan=require('morgan')
+const cloudinary=require('../assets/utils/cloudinaryConfig.jsx')
+// const cloudinary = require('cloudinary').v2;
+
+// //Cloudinary Config
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+
 
 const app = express();
 const port = 8000;
@@ -15,8 +26,8 @@ app.use(cors(
     origin: '*'
   }
 ));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(morgan('dev'))
 
 mongoose.connect('mongodb+srv://imabhishek028:imabhishek028@cluster0.yjpyfbo.mongodb.net/', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -121,15 +132,6 @@ app.get('/userProfile', async (req, res) => {
   }
 });
 
-//endpoint to check if server is running
-app.get('/check', (req, res) => {
-  try {
-    return res.status(200).json({ message: "Badhiya kaam kiya" })
-  } catch (e) {
-    console.log(e);
-    return res.status(400).send('Not working')
-  }
-})
 
 //endpoint to save in user data 
 app.post('/updateUserProfile', async (req, res) => {
@@ -158,20 +160,28 @@ app.post('/updateUserProfile', async (req, res) => {
 app.post('/createBook', async (req, res) => {
   try {
     const { user, createdBook } = req.body;
-    const { coverImage, title, author, genre, description } = createdBook;
+    const { title, author, genre, description, coverImage } = createdBook;
     // Upload the cover image to Cloudinary
-    const imageUrl = await uploadToCloudinary(`data:image/jpeg;base64,${coverImage}`);
-    let book = await Order.findOne({ user });
+    // const imageUrl = await uploadToCloudinary(`data:image/jpeg;base64,${coverImage}`);
+
+    const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${coverImage}`, {
+      folder: 'book_covers', // Optional folder name
+    });
+
+    // Get the secure URL of the uploaded image
+    const imageUrl = result.secure_url;
+
+    let book = await User.findOne({ email: user });
     if (!book) {
-      book = new Order({ user, createdBooks: [{ title, author, genre, description, coverImage: imageUrl }] });
+      book = new Order({ user, createdBooks: [{ title, author, genre, description, coverImage:imageUrl }] });
     } else {
-      book.createdBooks.push({ title, author, genre, description, coverImage: imageUrl });
+      book.createdBooks.push({ title, author, genre, description, coverImage:imageUrl });
     }
     await book.save();
     res.status(200).send(book);
   } catch (err) {
     console.error('Error saving book:', err);
-    res.status(500).send({ error: 'Failed to create book' });
+    res.status(500).send({err });
   }
 });
 
