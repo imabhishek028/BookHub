@@ -1,49 +1,154 @@
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import axios from 'axios';
+import { SafeAreaView, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import axiosInstance from '../assets/utils/axiosConfig';
+import { scale } from 'react-native-size-matters';
 
-const BookDetails = ({navigation,route}) => {
-    const {clickedBookId}=route.params;
-
-    const [bookData,setBookData]=useState()
+const BookDetails = ({ navigation, route }) => {
+    const { clickedBookId } = route.params;
+    const [bookData, setBookData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getBookDetails = async () => {
             try {
-                const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${clickedBookId}`, {
-                  params: {
-                    key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
-                  }
+                const response = await axiosInstance.get(`https://www.googleapis.com/books/v1/volumes/${clickedBookId}`, {
+                    params: {
+                        key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
+                    }
                 });
-                const title=response.data.volumeInfo.title
-                const author=response.data.volumeInfo.authors[0]
-                const publishedDate=response.data.volumeInfo.publishedDate
-                const description=response.data.volumeInfo.description
-                const coverImage=response.data.volumeInfo.imageLinks ? response.data.volumeInfo.imageLinks.thumbnail : null
-                const price=response.data.saleInfo.listPrice ? `${response.data.saleInfo.listPrice.amount} ${response.data.listPrice.currencyCode}` : 'Book not for sale'
-                console.log(description)
-              } catch (error) {
+                const bookInfo = response.data.volumeInfo;
+                const saleInfo = response.data.saleInfo;
+
+                const bookDetails = {
+                    title: bookInfo.title,
+                    author: bookInfo.authors ? bookInfo.authors[0] : 'Unknown Author',
+                    publishedDate: bookInfo.publishedDate,
+                    description: bookInfo.description,
+                    coverImage: bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : null,
+                    price: saleInfo.listPrice ? `${saleInfo.listPrice.amount} ${saleInfo.listPrice.currencyCode}` : 'Book not for sale',
+                };
+
+                setBookData(bookDetails);
+            } catch (error) {
                 console.error('Error fetching data:', error);
-              }
-        }
+            } finally {
+                setLoading(false);
+            }
+        };
+
         getBookDetails();
-    }, [])
+    }, [clickedBookId]);
+
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#041E42" />
+            </SafeAreaView>
+        );
+    }
+
+    if (!bookData) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.errorText}>Failed to load book details.</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
-            <View>
-                <Text>
-                    in progress
+            <ScrollView contentContainerStyle={styles.contentContainer}>
+                {bookData.coverImage && (
+                    <Image source={{ uri: bookData.coverImage }} style={styles.coverImage} />
+                )}
+                <Text style={styles.title}>
+                    {bookData.title}
                 </Text>
-            </View>
+                <Text style={styles.author}>
+                    {bookData.author}
+                </Text>
+                <Text style={styles.publishedDate}>
+                    {bookData.publishedDate}
+                </Text>
+                <View style={styles.descriptionContainer}>
+                    <Text style={styles.description}>
+                        {bookData.description}
+                    </Text>
+                </View>
+                <Text style={styles.price}>
+                    {bookData.price}
+                </Text>
+            </ScrollView>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default BookDetails
+export default BookDetails;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    contentContainer: {
+        padding: scale(20),
+        alignItems: 'center',
+    },
+    coverImage: {
+        width: scale(150),
+        height: scale(220),
+        resizeMode: 'cover',
+        marginBottom: scale(20),
+        borderRadius:scale(5),
+        borderWidth:5,
+        borderColor:'#000000'
+    },
+    title: {
+        fontSize: scale(24),
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: scale(10),
+        color: '#041E42'
+    },
+    author: {
+        fontSize: scale(18),
+        color: 'gray',
+        textAlign: 'center',
+        marginBottom: scale(10),
+    },
+    publishedDate: {
+        fontSize: scale(16),
+        color: 'gray',
+        textAlign: 'center',
+        marginBottom: scale(10),
+    },
+    description: {
+        fontSize: scale(16),
+        textAlign: 'center',
+        marginBottom: scale(20),
+        color: '#041E42',
+        padding:scale(10)
+    },
+    price: {
+        fontSize: scale(18),
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#041E42'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        fontSize: scale(18),
+        color: 'red',
+        textAlign: 'center',
+    },
+    descriptionContainer: {
+        backgroundColor: '#FFFFFF',
+        marginTop: scale(10),
+        marginBottom: scale(10),
+        borderRadius: scale(10),
+        elevation: 2,
     }
-})
+});
