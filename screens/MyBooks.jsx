@@ -11,7 +11,6 @@ const MyBooks = ({ navigation }) => {
     const [data, setData] = useState([]);
     const [loading,setLoading]=useState(false);
 
-
     useEffect(() => {
         const getUserEmail = async () => {
             try {
@@ -47,11 +46,16 @@ const MyBooks = ({ navigation }) => {
         }
     }, [email]);
 
+    const onPressHandler=(item)=>{
+        navigation.navigate('CreatedBookView',{item})
+    }
+
     const renderItem = ({ item }) => {
         const defaultImage = 'https://via.placeholder.com/100x160.png?text=No+Image';
         return (
           <TouchableOpacity 
-          style={styles.renderItem}>
+          style={styles.renderItem}
+          onPress={()=>onPressHandler(item)}>
             <View style={{ flexDirection: 'row', gap: scale(20) }}>
               <Image
                 source={{ uri: item.coverImage || defaultImage }}

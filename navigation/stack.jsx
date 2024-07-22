@@ -16,7 +16,8 @@ import Cart from '../screens/Cart';
 import CreateBook from '../screens/CreateBook';
 import Favourites from '../screens/Favourites';
 import BookDetails from '../screens/BookDetails';
-
+import createdBooksView from '../screens/createdBooksView';
+import CreatedBooksView from '../screens/createdBooksView';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -113,7 +114,7 @@ export default function StackNavigator() {
               fontSize: scale(18),
             }
           }} />
-           {/* <Stack.Screen name='BookDetails'
+           <Stack.Screen name='BookDetails'
           component={BookDetails}
           options={{
             tabBarLabel: 'Details',
@@ -123,7 +124,18 @@ export default function StackNavigator() {
               fontWeight: 'bold',
               fontSize: scale(18),
             }
-          }} /> */}
+          }} />
+           <Stack.Screen name='CreatedBookView'
+          component={CreatedBooksView}
+          options={{
+            tabBarLabel: 'My Collection',
+            title: 'My Collection',
+            headerTintColor: '#041E42',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              fontSize: scale(18),
+            }
+          }} />
         <Stack.Screen name='BuyHistory' component={BuyHistory} options={{ headerShown: false }} />
         <Stack.Screen name='Favourites' component={Favourites} options={{ headerShown: false }} />
       </Stack.Navigator>
