@@ -47,7 +47,7 @@ const MyBooks = ({ navigation }) => {
     }, [email]);
 
     const onPressHandler=(item)=>{
-        navigation.navigate('CreatedBookView',{item})
+        navigation.navigate('CreatedBookView',{item, email})
     }
 
     const renderItem = ({ item }) => {

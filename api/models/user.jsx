@@ -15,26 +15,29 @@ const userSchema = new mongoose.Schema({
         required: true,
 
     },
-    age:{
-        type:Number,
-        default:null
+    age: {
+        type: Number,
+        default: null
     },
-    phone:{
-        type:Number,
-        default:null
+    phone: {
+        type: Number,
+        default: null
     },
-    gender:{
-        type:String,
-        default:null
+    gender: {
+        type: String,
+        default: null
+    },
+    profilePicture: {
+        type: String
     },
     verificationToken: String,
     createdAt: {
         type: Date,
         default: Date.now
     },
-    photo:{
-        type:String,
-        default:null
+    photo: {
+        type: String,
+        default: null
     },
     createdBooks: [
         {
@@ -46,11 +49,11 @@ const userSchema = new mongoose.Schema({
             },
             genre: {
                 type: String,
-               
+
             },
             description: {
                 type: String,
-              
+
             },
             coverImage: {
                 type: String,

@@ -8,15 +8,6 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const morgan=require('morgan')
 const cloudinary=require('../assets/utils/cloudinaryConfig.jsx')
-// const cloudinary = require('cloudinary').v2;
-
-// //Cloudinary Config
-// cloudinary.config({
-//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
-
 
 const app = express();
 const port = 8000;
@@ -136,10 +127,17 @@ app.get('/userProfile', async (req, res) => {
 //endpoint to save in user data 
 app.post('/updateUserProfile', async (req, res) => {
   try {
-    const { email, name, age, gender, phone } = req.body;
+    const { email, name, age, gender, phone, profilePicture } = req.body;
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
+    const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${profilePicture}`, {
+      folder: 'user_picture', 
+    });
+
+    // Get the secure URL of the uploaded image
+    const imageUrl = result.secure_url;
+
     const userInfo = await User.findOne({ email });
     if (!userInfo) {
       return res.status(404).json({ message: "User not found" });
@@ -148,6 +146,7 @@ app.post('/updateUserProfile', async (req, res) => {
     userInfo.age = age;
     userInfo.gender = gender;
     userInfo.phone = phone;
+    userInfo.profilePicture=imageUrl;
     await userInfo.save();
     res.status(200).json({ message: 'User updated successfully' });
   } catch (err) {
@@ -193,8 +192,34 @@ app.get('/getCurrentCollections', async(req,res)=>{
   return res.status(200).json(createdBooks)
   }catch(err){
     console.error('Error getting collections:', err);
-    res.status(500).send({err });
+    res.status(500).send({err});
   }
 })
+
+// endpoint to delete a created book
+app.delete('/deleteCreatedBook', async (req, res) => {
+  const { email, item } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" });
+    }
+
+    const bookIndex = user.createdBooks.findIndex(
+      (book) => book._id.toString() === item._id.toString()
+    );
+    if (bookIndex !== -1) {
+      user.createdBooks.splice(bookIndex, 1);
+      await user.save();
+      return res.status(200).json({ message: "Book deleted successfully" });
+    } else {
+      return res.status(400).json({ message: "Book Not Found" });
+    }
+  } catch (err) {
+    console.error('Error deleting collection:', err);
+    return res.status(500).send({ err });
+  }
+});
+
 
 

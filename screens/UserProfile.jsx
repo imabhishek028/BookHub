@@ -1,12 +1,11 @@
-import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, Keyboard } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import ImagePicker from 'react-native-image-crop-picker';
 import axiosInstance from '../assets/utils/axiosConfig';
-
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const UserProfile = () => {
     const [name, setName] = useState('');
@@ -15,18 +14,20 @@ const UserProfile = () => {
     const [email, setEmail] = useState('');
     const [editingField, setEditingField] = useState('');
     const [phone, setPhone] = useState('');
+    const [imageBase64, setImageBase64] = useState('');
+    const [photo, setPhoto] = useState(require('../assets/defaultPic.png'));
 
-
-    const selectPhoto = () => {
-        ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true,
-            includeBase64:true
-          }).then(image => {
-            console.log(image);
-          });
-    }
+    const selectPhoto = async () => {
+        launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorCode);
+            } else if (response.assets && response.assets.length > 0) {
+                setImageBase64(response.assets[0].base64);
+            }
+        });
+    };
 
     useEffect(() => {
         const gettingUserInfo = async () => {
@@ -34,7 +35,7 @@ const UserProfile = () => {
                 const userEmail = await AsyncStorage.getItem('userEmail');
                 if (userEmail) {
                     setEmail(userEmail);
-                    const response = await axios.get('http://192.168.242.122:8000/userProfile', {
+                    const response = await axiosInstance.get('http://192.168.242.122:8000/userProfile', {
                         params: { email: userEmail }
                     });
                     const userInfo = response.data;
@@ -42,6 +43,9 @@ const UserProfile = () => {
                     setAge(userInfo.age || '');
                     setGender(userInfo.gender || '');
                     setPhone(userInfo.phone || '');
+                    if (userInfo.profilePicture) {
+                        setPhoto({ uri: userInfo.profilePicture });
+                    }
                 }
             } catch (err) {
                 console.log('Error fetching user info:', err.response);
@@ -52,6 +56,7 @@ const UserProfile = () => {
     }, []);
 
     const onSave = async () => {
+        Keyboard.dismiss();
         setEditingField('');
         try {
             const res = await axiosInstance.post('/updateUserProfile', {
@@ -60,43 +65,39 @@ const UserProfile = () => {
                 age: age,
                 gender: gender,
                 phone: phone,
+                profilePicture: imageBase64
             });
-            Alert.alert("Updated!","Profile has now been updated")
+            Alert.alert("Updated!", "Profile has now been updated");
         } catch (err) {
             console.log('Error saving user info:', err);
         }
     };
 
     const renderEditField = (field) => (
-        <View style={styles.editContainer}>
-            <TextInput
-                style={styles.input}
-                placeholder={`Enter ${field}`}
-                placeholderTextColor='gray'
-                value={field === 'name' ? name : field === 'age' ? age : field === 'phone' ? phone : gender}
-                onChangeText={(value) => {
-                    if (field === 'name') setName(value);
-                    else if (field === 'age') setAge(value);
-                    else if (field === 'phone') setPhone(value);
-                    else setGender(value);
-                }}
-                keyboardType={field === 'age' || field === 'phone' ? 'numeric' : 'default'}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-                <Text style={styles.saveText}>Save</Text>
-            </TouchableOpacity>
-        </View>
+        <TextInput
+            style={styles.input}
+            placeholder={`Enter ${field}`}
+            placeholderTextColor='gray'
+            value={field === 'name' ? name : field === 'age' ? age : field === 'phone' ? phone : gender}
+            onChangeText={(value) => {
+                if (field === 'name') setName(value);
+                else if (field === 'age') setAge(value);
+                else if (field === 'phone') setPhone(value);
+                else setGender(value);
+            }}
+            keyboardType={field === 'age' || field === 'phone' ? 'numeric' : 'default'}
+        />
     );
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.imageContainer}>
-                <TouchableOpacity
-                onPress={()=>selectPhoto()}>
-                    <Image
-                        source={require('../assets/defaultPic.png')}
-                        style={styles.image}
-                    />
+                <Image
+                    source={imageBase64 ? { uri: `data:image/jpeg;base64,${imageBase64}` } : photo}
+                    style={styles.image}
+                />
+                <TouchableOpacity style={styles.editPhotoButton} onPress={selectPhoto}>
+                    <FontAwesome5 name='pen' size={scale(18)} color={'#041E42'} />
                 </TouchableOpacity>
                 <Text style={styles.emailText}>
                     {email}
@@ -172,6 +173,9 @@ const UserProfile = () => {
                     )}
                 </View>
             </View>
+            <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+                <Text style={styles.saveText}>Save</Text>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 };
@@ -194,6 +198,20 @@ const styles = StyleSheet.create({
         borderWidth: 4,
         borderColor: '#041E42',
     },
+    editPhotoButton: {
+        backgroundColor: '#FEBE10',
+        padding: scale(10),
+        borderRadius: scale(5),
+        marginTop: scale(10),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emailText: {
+        color: '#041E42',
+        fontSize: scale(14),
+        fontWeight: 'bold',
+        marginTop: scale(10),
+    },
     infoBox: {
         width: '100%',
         padding: 20,
@@ -203,12 +221,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 5,
-    },
-    emailText: {
-        color: '#041E42',
-        fontSize: scale(14),
-        fontWeight: 'bold',
-        marginTop: scale(10),
     },
     paraContainer: {
         flexDirection: 'row',
@@ -226,10 +238,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flex: 2,
     },
-    editContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
     input: {
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
@@ -241,11 +249,10 @@ const styles = StyleSheet.create({
     saveButton: {
         backgroundColor: '#FEBE10',
         height: scale(40),
-        width: scale(80),
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: scale(10),
-        marginLeft: scale(10),
+        marginTop: scale(20),
     },
     saveText: {
         color: '#041E42',
