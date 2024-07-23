@@ -131,20 +131,20 @@ app.post('/updateUserProfile', async (req, res) => {
 // Add book to user endpoint
 app.post('/createBook', async (req, res) => {
   try {
-    const { user, createdBook } = req.body;
+    const { email, createdBook } = req.body;
     const { title, author, genre, description, coverImage } = createdBook;
 
     const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${coverImage}`, { folder: 'book_covers' });
     const imageUrl = result.secure_url;
 
-    let book = await User.findOne({ email: user });
+    let book = await User.findOne({ email:email });
     if (!book) {
-      book = new User({ user, createdBooks: [{ title, author, genre, description, coverImage: imageUrl }] });
+      book = new User({ email, createdBooks: [{ title, author, genre, description, coverImage: imageUrl }] });
     } else {
       book.createdBooks.push({ title, author, genre, description, coverImage: imageUrl });
     }
     await book.save();
-    res.status(200).send(book);
+    res.status(200).send({message:"Book created!"});
   } catch (err) {
     console.error('Error saving book:', err);
     res.status(500).send({ err });
@@ -231,3 +231,16 @@ app.get('/checkIfFav', async (req, res) => {
     res.status(500).json({ message: 'Error checking favourite' });
   }
 });
+
+// endpoint to get Favourites
+app.get('/getFavourites', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const user = await User.findOne({ email });
+    const FavBooks = user.favouriteBooks;
+    return res.status(200).json(FavBooks);
+  } catch (error) {
+    console.error('Error fetching favourites:', error);
+    res.status(500).json({ message: 'Error checking favourite' });
+  }
+})

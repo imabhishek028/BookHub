@@ -137,7 +137,17 @@ export default function StackNavigator() {
             }
           }} />
         <Stack.Screen name='BuyHistory' component={BuyHistory} options={{ headerShown: false }} />
-        <Stack.Screen name='Favourites' component={Favourites} options={{ headerShown: false }} />
+        <Stack.Screen name='Favourites'
+         component={Favourites} 
+         options={{
+            tabBarLabel: 'Favourites',
+            title: 'Favourites',
+            headerTintColor: '#041E42',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              fontSize: scale(18),
+            }
+          }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -4,7 +4,6 @@ import { FlatList, ScrollView, TouchableOpacity } from 'react-native-gesture-han
 import { scale } from 'react-native-size-matters';
 import axiosInstance from '../assets/utils/axiosConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useFocusEffect } from '@react-navigation/native';
 
 const MyBooks = ({ navigation }) => {
@@ -47,6 +46,10 @@ const MyBooks = ({ navigation }) => {
         }, [email])
     );
 
+    const onPressFavourites=()=>{
+        navigation.navigate('Favourites')
+    }
+
     const onPressHandler = (item) => {
         navigation.navigate('CreatedBookView', { item, email });
     };
@@ -88,7 +91,8 @@ const MyBooks = ({ navigation }) => {
                 <View style={{ flexDirection: 'row' }}>
                     <View style={styles.touchableView}>
                         <TouchableOpacity>
-                            <Text style={styles.touchableText}>
+                            <Text style={styles.touchableText}
+                            onPress={onPressFavourites}>
                                 Favourites
                             </Text>
                         </TouchableOpacity>
