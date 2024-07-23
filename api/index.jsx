@@ -275,3 +275,21 @@ app.get('/getBuyHistory', async (req, res) => {
   }
 })
 
+//Update Password:
+app.post('/updatePassword', async(req,res)=>{
+  const {email, oldPassword, newPassword}=req.body;
+  try{
+    const user=await User.findOne({email:email})
+    if(user.password.toString()!=oldPassword){
+      return res.status(401).json({message:'Incorrect previous password'})
+    }else{
+      user.password=newPassword;
+      await user.save();
+      return res.status(200).json({message:"Password updated successfully"})
+    }
+  }catch(err){
+    console.error('Error updating password:', err);
+    res.status(500).json({ message: 'Error updating password' });
+  }
+})
+

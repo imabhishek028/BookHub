@@ -11,53 +11,39 @@ const ChangePassword = ({navigation}) => {
   const [newPassword, setNewPassword] = useState('');
   const [confNewPassword, setConfNewPassword] = useState('');
 
-  useEffect(() => {
-    const getEmail = async () => {
-      try {
-        const storedEmail = await AsyncStorage.getItem('userEmail');
-        if (storedEmail) setEmail(storedEmail);
-      } catch (err) {
-        console.error('Error retrieving email:', err);
-      }
-    };
-    getEmail();
-  }, []);
+  useEffect(()=>{
+    const getEmail=async ()=>{
+        try {
+            const email = await AsyncStorage.getItem('userEmail');
+            if (email) setEmail(email);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+  },[])
 
   const handleSubmit = async () => {
-    if (newPassword !== confNewPassword) {
-      Alert.alert('Error', 'Confirmation password does not match');
-      setConfNewPassword('');
-      setNewPassword('');
-      return;
-    }
-
-    try {
-      const res = await axiosInstance.post('/updatePassword', {
-        email: email,
-        oldPassword: oldPassword,
-        newPassword: newPassword
-      });
-
-      if (res.status === 200) {
-        Alert.alert('Success', 'Password changed successfully');
-        setOldPassword('');
-        setNewPassword('');
-        setConfNewPassword('');
+   if(newPassword!=confNewPassword){
+    Alert.alert('Error','Confirmation password is different')
+    setConfNewPassword('')
+    setNewPassword('')
+   }else{
+    const res= await axiosInstance.post('/updatePassword',{
+        email:email,
+        oldPassword:oldPassword,
+        newPassword:newPassword
+    })
+    if(res.status==401){
+        Alert.alert('Incorrect Old Password', 'Kindly check your previous password')
+    }else {
+        Alert.alert('Password changed successfully!')
         navigation.goBack();
-      } else if (res.status === 401) {
-        Alert.alert('Error', 'Incorrect old password');
-      } else {
-        Alert.alert('Error', 'Failed to update password');
-      }
-    } catch (error) {
-      console.error('Error updating password:', error);
-      Alert.alert('Error', 'Failed to update password');
     }
+   }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
           <Text style={styles.title}>Change Password</Text>
 
@@ -98,10 +84,11 @@ const ChangePassword = ({navigation}) => {
             <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
         </View>
-      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
+
+export default ChangePassword;
 
 const styles = StyleSheet.create({
   container: {
@@ -154,5 +141,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default ChangePassword;

@@ -18,6 +18,7 @@ import Favourites from '../screens/Favourites';
 import BookDetails from '../screens/BookDetails';
 import createdBooksView from '../screens/createdBooksView';
 import CreatedBooksView from '../screens/createdBooksView';
+import ChangePassword from '../screens/ChangePassword';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -158,6 +159,11 @@ export default function StackNavigator() {
               fontWeight: 'bold',
               fontSize: scale(18),
             }
+          }} />
+          <Stack.Screen name='ChangePassword'
+         component={ChangePassword} 
+         options={{
+            headerShown:false
           }} />
       </Stack.Navigator>
     </NavigationContainer>
