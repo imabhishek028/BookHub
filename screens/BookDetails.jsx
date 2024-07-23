@@ -1,12 +1,27 @@
-import { SafeAreaView, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../assets/utils/axiosConfig';
 import { scale } from 'react-native-size-matters';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BookDetails = ({ navigation, route }) => {
     const { clickedBookId } = route.params;
+    const [email, setUserEmail] = useState('');
     const [bookData, setBookData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isFavourite, setIsFavourite] = useState(false);
+
+    useEffect(() => {
+        const getUserEmail = async () => {
+            try {
+                const storedEmail = await AsyncStorage.getItem('userEmail');
+                if (storedEmail) setUserEmail(storedEmail);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        getUserEmail();
+    }, []);
 
     useEffect(() => {
         const getBookDetails = async () => {
@@ -18,7 +33,6 @@ const BookDetails = ({ navigation, route }) => {
                 });
                 const bookInfo = response.data.volumeInfo;
                 const saleInfo = response.data.saleInfo;
-
                 const bookDetails = {
                     title: bookInfo.title,
                     author: bookInfo.authors ? bookInfo.authors[0] : 'Unknown Author',
@@ -29,6 +43,15 @@ const BookDetails = ({ navigation, route }) => {
                 };
 
                 setBookData(bookDetails);
+
+                const checkResponse = await axiosInstance.get('/checkIfFav', {
+                    params: {
+                        email: email,
+                        bookId: clickedBookId
+                    }
+                });
+                setIsFavourite(checkResponse.data.isFavourite);
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -37,7 +60,43 @@ const BookDetails = ({ navigation, route }) => {
         };
 
         getBookDetails();
-    }, [clickedBookId]);
+    }, [clickedBookId, email]);
+
+    const addToFavourites = async () => {
+        try {
+            await axiosInstance.post('/addToFav', {
+                email: email,
+                bookId: clickedBookId
+            });
+            setIsFavourite(true);
+            Alert.alert('Added to Favourites!', 'The book has now been added to favourites');
+        } catch (error) {
+            console.error('Error adding to favourites:', error);
+        }
+    };
+
+    const removeFromFavourites = async () => {
+        try {
+            await axiosInstance.delete('/removeFromFav', {
+                data: {
+                    email: email,
+                    bookId: clickedBookId
+                }
+            });
+            setIsFavourite(false);
+            Alert.alert('Removed from Favourites!', 'The book has now been removed from favourites');
+        } catch (error) {
+            console.error('Error removing from favourites:', error);
+        }
+    };
+
+    const handleFavouriteToggle = () => {
+        if (isFavourite) {
+            removeFromFavourites();
+        } else {
+            addToFavourites();
+        }
+    };
 
     if (loading) {
         return (
@@ -78,6 +137,14 @@ const BookDetails = ({ navigation, route }) => {
                 <Text style={styles.price}>
                     {bookData.price}
                 </Text>
+                <TouchableOpacity
+                    style={styles.favouriteButton}
+                    onPress={handleFavouriteToggle}
+                >
+                    <Text style={styles.favouriteButtonText}>
+                        {isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}
+                    </Text>
+                </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     );
@@ -98,16 +165,16 @@ const styles = StyleSheet.create({
         height: scale(220),
         resizeMode: 'cover',
         marginBottom: scale(20),
-        borderRadius:scale(5),
-        borderWidth:5,
-        borderColor:'#000000'
+        borderRadius: scale(5),
+        borderWidth: 5,
+        borderColor: '#000000',
     },
     title: {
         fontSize: scale(24),
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: scale(10),
-        color: '#041E42'
+        color: '#041E42',
     },
     author: {
         fontSize: scale(18),
@@ -119,20 +186,40 @@ const styles = StyleSheet.create({
         fontSize: scale(16),
         color: 'gray',
         textAlign: 'center',
+        marginBottom: scale(20),
+    },
+    descriptionContainer: {
+        backgroundColor: '#FFFFFF',
+        marginTop: scale(10),
         marginBottom: scale(10),
+        borderRadius: scale(10),
+        elevation: 2,
+
     },
     description: {
         fontSize: scale(16),
-        textAlign: 'center',
-        marginBottom: scale(20),
-        color: '#041E42',
+        color: 'black',
+        textAlign: 'left',
+        lineHeight: scale(22),
         padding:scale(10)
     },
     price: {
         fontSize: scale(18),
         fontWeight: 'bold',
+        color: 'green',
         textAlign: 'center',
-        color: '#041E42'
+        marginBottom: scale(20),
+    },
+    favouriteButton: {
+        backgroundColor: '#041E42',
+        borderRadius: scale(5),
+        padding: scale(10),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    favouriteButtonText: {
+        color: '#FFFFFF',
+        fontSize: scale(16),
     },
     loadingContainer: {
         flex: 1,
@@ -144,11 +231,4 @@ const styles = StyleSheet.create({
         color: 'red',
         textAlign: 'center',
     },
-    descriptionContainer: {
-        backgroundColor: '#FFFFFF',
-        marginTop: scale(10),
-        marginBottom: scale(10),
-        borderRadius: scale(10),
-        elevation: 2,
-    }
 });

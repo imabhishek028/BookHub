@@ -16,6 +16,7 @@ const UserProfile = () => {
     const [phone, setPhone] = useState('');
     const [imageBase64, setImageBase64] = useState('');
     const [photo, setPhoto] = useState(require('../assets/defaultPic.png'));
+    const [loading, setLoading] = useState(false);
 
     const selectPhoto = async () => {
         launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
@@ -35,7 +36,7 @@ const UserProfile = () => {
                 const userEmail = await AsyncStorage.getItem('userEmail');
                 if (userEmail) {
                     setEmail(userEmail);
-                    const response = await axiosInstance.get('http://192.168.242.122:8000/userProfile', {
+                    const response = await axiosInstance.get('/userProfile', {
                         params: { email: userEmail }
                     });
                     const userInfo = response.data;
@@ -58,6 +59,7 @@ const UserProfile = () => {
     const onSave = async () => {
         Keyboard.dismiss();
         setEditingField('');
+        setLoading(true);
         try {
             const res = await axiosInstance.post('/updateUserProfile', {
                 email: email,
@@ -67,9 +69,12 @@ const UserProfile = () => {
                 phone: phone,
                 profilePicture: imageBase64
             });
-            Alert.alert("Updated!", "Profile has now been updated");
+            Alert.alert("Updated!", "Profile has now been updated", [
+                { text: "OK", onPress: () => setLoading(false) }
+            ]);
         } catch (err) {
-            console.log('Error saving user info:', err);
+            console.log('Error saving user info:', JSON.stringify(err));
+            setLoading(false);
         }
     };
 
@@ -173,14 +178,16 @@ const UserProfile = () => {
                     )}
                 </View>
             </View>
-            <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <TouchableOpacity
+                style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+                onPress={onSave}
+                disabled={loading}
+            >
                 <Text style={styles.saveText}>Save</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );
 };
-
-export default UserProfile;
 
 const styles = StyleSheet.create({
     container: {
@@ -254,8 +261,13 @@ const styles = StyleSheet.create({
         borderRadius: scale(10),
         marginTop: scale(20),
     },
+    saveButtonDisabled: {
+        backgroundColor: '#ddd',
+    },
     saveText: {
         color: '#041E42',
         fontSize: scale(16),
     },
 });
+
+export default UserProfile;

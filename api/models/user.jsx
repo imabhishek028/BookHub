@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
     favouriteBooks:[
        {
         bookId:{
-            typr:String
+            type:String,
         }
        }
     ],
