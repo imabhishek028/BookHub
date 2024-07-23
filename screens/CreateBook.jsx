@@ -59,7 +59,7 @@ const CreateBook = ({navigation}) => {
     } else {
       try {
         const bookData = {
-          user: userEmail,
+          email: userEmail,
           createdBook: {
             title,
             author,

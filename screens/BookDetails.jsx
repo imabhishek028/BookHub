@@ -98,6 +98,19 @@ const BookDetails = ({ navigation, route }) => {
         }
     };
 
+    const onPressBuy=async ()=>{
+        try {
+            await axiosInstance.post('/buyBook', {
+                email: email,
+                bookId: clickedBookId
+            });
+            setIsFavourite(true);
+            Alert.alert('Purchased!', 'The book has now been added to buy history');
+        } catch (error) {
+            console.error('Error buying book', error);
+        }
+    }
+
     if (loading) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
@@ -143,6 +156,14 @@ const BookDetails = ({ navigation, route }) => {
                 >
                     <Text style={styles.favouriteButtonText}>
                         {isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.favouriteButton}
+                    onPress={onPressBuy}
+                >
+                    <Text style={styles.favouriteButtonText}>
+                      Buy
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -216,6 +237,7 @@ const styles = StyleSheet.create({
         padding: scale(10),
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop:scale(10),
     },
     favouriteButtonText: {
         color: '#FFFFFF',

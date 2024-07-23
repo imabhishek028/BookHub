@@ -119,7 +119,10 @@ const MyBooks = ({ navigation }) => {
                     </View>
                     <View style={styles.touchableView}>
                         <TouchableOpacity>
-                            <Text style={styles.touchableText}>
+                            <Text style={styles.touchableText}
+                            onPress={()=>{
+                                navigation.navigate('BuyHistory')
+                            }}>
                                 Buy History
                             </Text>
                         </TouchableOpacity>

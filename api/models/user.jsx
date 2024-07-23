@@ -56,18 +56,22 @@ const userSchema = new mongoose.Schema({
             }
         }
     ],
-    favouriteBooks:[
-       {
-        bookId:{
-            type:String,
-        }
-       }
-    ],
-    booksBought:[
+    favouriteBooks: [
         {
-            bookId:{
-                type:String
+            bookId: {
+                type: String,
             }
+        }
+    ],
+    booksBought: [
+        {
+            bookId: {
+                type: String
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            },
         }
     ]
 })

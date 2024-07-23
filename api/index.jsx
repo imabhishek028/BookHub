@@ -134,17 +134,18 @@ app.post('/createBook', async (req, res) => {
     const { email, createdBook } = req.body;
     const { title, author, genre, description, coverImage } = createdBook;
 
-    const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${coverImage}`, { folder: 'book_covers' });
+    const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${coverImage}`,
+      { folder: 'book_covers' });
     const imageUrl = result.secure_url;
 
-    let book = await User.findOne({ email:email });
+    let book = await User.findOne({ email: email });
     if (!book) {
       book = new User({ email, createdBooks: [{ title, author, genre, description, coverImage: imageUrl }] });
     } else {
       book.createdBooks.push({ title, author, genre, description, coverImage: imageUrl });
     }
     await book.save();
-    res.status(200).send({message:"Book created!"});
+    res.status(200).send({ message: "Book created!" });
   } catch (err) {
     console.error('Error saving book:', err);
     res.status(500).send({ err });
@@ -244,3 +245,33 @@ app.get('/getFavourites', async (req, res) => {
     res.status(500).json({ message: 'Error checking favourite' });
   }
 })
+
+//buy the book and save it 
+app.post('/buyBook', async (req, res) => {
+  try {
+    const { email, bookId } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.booksBought.push({ bookId });
+    await user.save();
+    res.status(200).json({ message: "Book added to favourites" });
+  } catch (error) {
+    console.error('Error adding to favourites:', error);
+    res.status(500).json({ message: 'Error adding to favourites' });
+  }
+});
+
+//get bought books
+app.get('/getBuyHistory', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const user = await User.findOne({ email });
+    const books = user.booksBought;
+    return res.status(200).json(books);
+  } catch (error) {
+    console.error('Error fetching buy history:', error);
+    res.status(500).json({ message: 'Error fetching buy history' });
+  }
+})
+
