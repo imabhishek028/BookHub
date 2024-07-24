@@ -104,6 +104,11 @@ export default function StackNavigator() {
         <Stack.Screen name='register' component={Register} options={{ headerShown: false }} />
         <Stack.Screen name='BottomTabs' component={BottomTabs} options={{ headerShown: false }} />
         <Stack.Screen name='Cart' component={Cart} options={{ headerShown: false }} />
+        <Stack.Screen name='ChangePassword'
+         component={ChangePassword} 
+         options={{
+            headerShown:false
+          }} />
         <Stack.Screen name='CreateBook'
           component={CreateBook}
           options={{
@@ -159,11 +164,6 @@ export default function StackNavigator() {
               fontWeight: 'bold',
               fontSize: scale(18),
             }
-          }} />
-          <Stack.Screen name='ChangePassword'
-         component={ChangePassword} 
-         options={{
-            headerShown:false
           }} />
       </Stack.Navigator>
     </NavigationContainer>

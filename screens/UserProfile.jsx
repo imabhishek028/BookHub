@@ -1,158 +1,273 @@
-import { Alert, Keyboard, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert, Keyboard } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-native-gesture-handler';
 import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axiosInstance from '../assets/utils/axiosConfig';
+import { launchImageLibrary } from 'react-native-image-picker';
 
-const ChangePassword = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confNewPassword, setConfNewPassword] = useState('');
+const UserProfile = () => {
+    const [name, setName] = useState('');
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('');
+    const [email, setEmail] = useState('');
+    const [editingField, setEditingField] = useState('');
+    const [phone, setPhone] = useState('');
+    const [imageBase64, setImageBase64] = useState('');
+    const [photo, setPhoto] = useState(require('../assets/defaultPic.png'));
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const getEmail = async () => {
-      try {
-        const storedEmail = await AsyncStorage.getItem('userEmail');
-        if (storedEmail) setEmail(storedEmail);
-      } catch (err) {
-        console.error('Error retrieving email:', err);
-      }
+    const selectPhoto = async () => {
+        launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorCode) {
+                console.log('ImagePicker Error: ', response.errorCode);
+            } else if (response.assets && response.assets.length > 0) {
+                setImageBase64(response.assets[0].base64);
+            }
+        });
     };
-    getEmail();
-  }, []);
 
-  const handleSubmit = async () => {
-    if (newPassword !== confNewPassword) {
-      Alert.alert('Error', 'Confirmation password does not match');
-      setConfNewPassword('');
-      setNewPassword('');
-      return;
-    }
+    useEffect(() => {
+        const gettingUserInfo = async () => {
+            try {
+                const userEmail = await AsyncStorage.getItem('userEmail');
+                if (userEmail) {
+                    setEmail(userEmail);
+                    const response = await axiosInstance.get('/userProfile', {
+                        params: { email: userEmail }
+                    });
+                    const userInfo = response.data;
+                    setName(userInfo.name || '');
+                    setAge(userInfo.age || '');
+                    setGender(userInfo.gender || '');
+                    setPhone(userInfo.phone || '');
+                    if (userInfo.profilePicture) {
+                        setPhoto({ uri: userInfo.profilePicture });
+                    }
+                }
+            } catch (err) {
+                console.log('Error fetching user info:', err.response);
+            }
+        };
 
-    try {
-      const res = await axiosInstance.post('/updatePassword', {
-        email: email,
-        oldPassword: oldPassword,
-        newPassword: newPassword
-      });
+        gettingUserInfo();
+    }, []);
 
-      if (res.status === 200) {
-        Alert.alert('Success', 'Password changed successfully');
-        setOldPassword('');
-        setNewPassword('');
-        setConfNewPassword('');
-        navigation.goBack();
-      } else if (res.status === 401) {
-        Alert.alert('Error', 'Incorrect old password');
-      } else {
-        Alert.alert('Error', 'Failed to update password');
-      }
-    } catch (error) {
-      console.error('Error updating password:', error);
-      Alert.alert('Error', 'Failed to update password');
-    }
-  };
+    const onSave = async () => {
+        Keyboard.dismiss();
+        setEditingField('');
+        setLoading(true);
+        try {
+            const res = await axiosInstance.post('/updateUserProfile', {
+                email: email,
+                name: name,
+                age: age,
+                gender: gender,
+                phone: phone,
+                profilePicture: imageBase64
+            });
+            Alert.alert("Updated!", "Profile has now been updated", [
+                { text: "OK", onPress: () => setLoading(false) }
+            ]);
+        } catch (err) {
+            console.log('Error saving user info:', JSON.stringify(err));
+            setLoading(false);
+        }
+    };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          <Text style={styles.title}>Change Password</Text>
+    const renderEditField = (field) => (
+        <TextInput
+            style={styles.input}
+            placeholder={`Enter ${field}`}
+            placeholderTextColor='gray'
+            value={field === 'name' ? name : field === 'age' ? age : field === 'phone' ? phone : gender}
+            onChangeText={(value) => {
+                if (field === 'name') setName(value);
+                else if (field === 'age') setAge(value);
+                else if (field === 'phone') setPhone(value);
+                else setGender(value);
+            }}
+            keyboardType={field === 'age' || field === 'phone' ? 'numeric' : 'default'}
+        />
+    );
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Old Password</Text>
-            <TextInput
-              placeholder='Enter Your Old Password'
-              style={styles.textInput}
-              value={oldPassword}
-              onChangeText={setOldPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>New Password</Text>
-            <TextInput
-              placeholder='Enter Your New Password'
-              style={styles.textInput}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirm New Password</Text>
-            <TextInput
-              placeholder='Confirm Your New Password'
-              style={styles.textInput}
-              value={confNewPassword}
-              onChangeText={setConfNewPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
-  );
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.imageContainer}>
+                <Image
+                    source={imageBase64 ? { uri: `data:image/jpeg;base64,${imageBase64}` } : photo}
+                    style={styles.image}
+                />
+                <TouchableOpacity style={styles.editPhotoButton} onPress={selectPhoto}>
+                    <FontAwesome5 name='pen' size={scale(18)} color={'#041E42'} />
+                </TouchableOpacity>
+                <Text style={styles.emailText}>
+                    {email}
+                </Text>
+            </View>
+            <View style={styles.infoBox}>
+                <View style={styles.paraContainer}>
+                    <Text style={styles.typeText}>
+                        Name:
+                    </Text>
+                    {editingField === 'name' ? (
+                        renderEditField('name')
+                    ) : (
+                        <>
+                            <Text style={styles.valueText}>
+                                {name}
+                            </Text>
+                            <TouchableOpacity onPress={() => setEditingField('name')}>
+                                <FontAwesome5 name='pen' size={scale(18)} color={'black'} />
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+                <View style={styles.paraContainer}>
+                    <Text style={styles.typeText}>
+                        Age:
+                    </Text>
+                    {editingField === 'age' ? (
+                        renderEditField('age')
+                    ) : (
+                        <>
+                            <Text style={styles.valueText}>
+                                {age}
+                            </Text>
+                            <TouchableOpacity onPress={() => setEditingField('age')}>
+                                <FontAwesome5 name='pen' size={scale(18)} color={'black'} />
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+                <View style={styles.paraContainer}>
+                    <Text style={styles.typeText}>
+                        Phone:
+                    </Text>
+                    {editingField === 'phone' ? (
+                        renderEditField('phone')
+                    ) : (
+                        <>
+                            <Text style={styles.valueText}>
+                                {phone}
+                            </Text>
+                            <TouchableOpacity onPress={() => setEditingField('phone')}>
+                                <FontAwesome5 name='pen' size={scale(18)} color={'black'} />
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+                <View style={styles.paraContainer}>
+                    <Text style={styles.typeText}>
+                        Gender:
+                    </Text>
+                    {editingField === 'gender' ? (
+                        renderEditField('gender')
+                    ) : (
+                        <>
+                            <Text style={styles.valueText}>
+                                {gender}
+                            </Text>
+                            <TouchableOpacity onPress={() => setEditingField('gender')}>
+                                <FontAwesome5 name='pen' size={scale(18)} color={'black'} />
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+            </View>
+            <TouchableOpacity
+                style={[styles.saveButton, loading && styles.saveButtonDisabled]}
+                onPress={onSave}
+                disabled={loading}
+            >
+                <Text style={styles.saveText}>Save</Text>
+            </TouchableOpacity>
+        </SafeAreaView>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: scale(20),
-    backgroundColor: '#F8F9FA',
-  },
-  inner: {
-    padding: scale(20),
-    backgroundColor: '#FFFFFF',
-    borderRadius: scale(10),
-    elevation: 5,
-  },
-  title: {
-    fontSize: scale(24),
-    fontWeight: 'bold',
-    marginBottom: scale(20),
-    textAlign: 'center',
-    color: '#041E42',
-  },
-  inputContainer: {
-    marginBottom: scale(15),
-  },
-  label: {
-    fontSize: scale(16),
-    marginBottom: scale(5),
-    color: '#041E42',
-  },
-  textInput: {
-    height: scale(40),
-    borderColor: '#041E42',
-    borderWidth: 1,
-    borderRadius: scale(5),
-    paddingHorizontal: scale(10),
-    backgroundColor: '#F1F1F1',
-    fontSize: scale(16),
-    color: '#333333',
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: scale(12),
-    borderRadius: scale(8),
-    alignItems: 'center',
-    marginTop: scale(20),
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: scale(18),
-    fontWeight: 'bold',
-  },
+    container: {
+        flex: 1,
+        padding: 20,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        marginBottom: scale(20),
+    },
+    image: {
+        width: scale(150),
+        height: scale(150),
+        borderRadius: scale(75),
+        borderWidth: 4,
+        borderColor: '#041E42',
+    },
+    editPhotoButton: {
+        backgroundColor: '#FEBE10',
+        padding: scale(10),
+        borderRadius: scale(5),
+        marginTop: scale(10),
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emailText: {
+        color: '#041E42',
+        fontSize: scale(14),
+        fontWeight: 'bold',
+        marginTop: scale(10),
+    },
+    infoBox: {
+        width: '100%',
+        padding: 20,
+        backgroundColor: '#FFF',
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    paraContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: scale(10),
+    },
+    typeText: {
+        color: 'gray',
+        flex: 1,
+        fontSize: scale(14),
+    },
+    valueText: {
+        color: '#041E42',
+        fontSize: scale(16),
+        fontWeight: 'bold',
+        flex: 2,
+    },
+    input: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        fontSize: scale(16),
+        padding: scale(10),
+        flex: 2,
+        color: 'black',
+    },
+    saveButton: {
+        backgroundColor: '#FEBE10',
+        height: scale(40),
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: scale(10),
+        marginTop: scale(20),
+    },
+    saveButtonDisabled: {
+        backgroundColor: '#ddd',
+    },
+    saveText: {
+        color: '#041E42',
+        fontSize: scale(16),
+    },
 });
 
-export default ChangePassword;
+export default UserProfile;
