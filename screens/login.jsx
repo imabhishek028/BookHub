@@ -1,5 +1,5 @@
 import { SafeAreaView, StyleSheet, Text, View, StatusBar, Image, KeyboardAvoidingView, Keyboard, TouchableOpacity, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -11,6 +11,20 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken')
+        if (token) {
+          navigation.replace('BottomTabs')
+        }
+      } catch (err) {
+        console.log(`Error login using token: ${err}`)
+      }
+    }
+    checkLoginStatus();
+  },[])
 
   const onPressSignUp = () => {
     navigation.navigate('register');
@@ -37,7 +51,7 @@ const Login = ({ navigation }) => {
       console.log(err.request || err.message || err);
     }
   };
-  
+
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
