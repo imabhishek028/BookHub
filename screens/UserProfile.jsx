@@ -6,8 +6,9 @@ import axios from 'axios';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import axiosInstance from '../assets/utils/axiosConfig';
 import { launchImageLibrary } from 'react-native-image-picker';
+import ChangePassword from './ChangePassword';
 
-const UserProfile = () => {
+const UserProfile = ({navigation}) => {
     const [name, setName] = useState('');
     const [age, setAge] = useState('');
     const [gender, setGender] = useState('');
@@ -19,16 +20,16 @@ const UserProfile = () => {
     const [loading, setLoading] = useState(false);
 
     const selectPhoto = async () => {
-        launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.errorCode) {
-                console.log('ImagePicker Error: ', response.errorCode);
-            } else if (response.assets && response.assets.length > 0) {
-                setImageBase64(response.assets[0].base64);
-            }
-        });
-    };
+      launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
+          if (response.didCancel) {
+              console.log('User cancelled image picker');
+          } else if (response.errorCode) {
+              console.log('ImagePicker Error: ', response.errorCode);
+          } else if (response.assets && response.assets.length > 0) {
+              setImageBase64(response.assets[0].base64);
+          }
+      });
+  };
 
     useEffect(() => {
         const gettingUserInfo = async () => {
@@ -185,6 +186,14 @@ const UserProfile = () => {
             >
                 <Text style={styles.saveText}>Save</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={{alignItems:'center', marginTop:scale(10)}}
+            onPress={()=>{
+              navigation.navigate('ChangePassword')
+            }}>
+              <Text style={styles.passwordText}>
+                Change Password
+              </Text>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 };
@@ -268,6 +277,10 @@ const styles = StyleSheet.create({
         color: '#041E42',
         fontSize: scale(16),
     },
+    passwordText:{
+      color: 'blue',
+      fontSize: scale(14),
+    }
 });
 
 export default UserProfile;

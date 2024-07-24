@@ -12,34 +12,41 @@ const ChangePassword = ({navigation}) => {
   const [confNewPassword, setConfNewPassword] = useState('');
 
   useEffect(()=>{
-    const getEmail=async ()=>{
+    const getEmail = async () => {
         try {
-            const email = await AsyncStorage.getItem('userEmail');
-            if (email) setEmail(email);
+            const storedEmail = await AsyncStorage.getItem('userEmail');
+            if (storedEmail) setEmail(storedEmail);
         } catch (err) {
             console.log(err);
         }
-    }
-  },[])
+    };
+    getEmail();
+  }, []);
 
   const handleSubmit = async () => {
-   if(newPassword!=confNewPassword){
-    Alert.alert('Error','Confirmation password is different')
-    setConfNewPassword('')
-    setNewPassword('')
-   }else{
-    const res= await axiosInstance.post('/updatePassword',{
-        email:email,
-        oldPassword:oldPassword,
-        newPassword:newPassword
-    })
-    if(res.status==401){
-        Alert.alert('Incorrect Old Password', 'Kindly check your previous password')
-    }else {
-        Alert.alert('Password changed successfully!')
-        navigation.goBack();
+    if (newPassword !== confNewPassword) {
+      Alert.alert('Error', 'Confirmation password is different');
+      setConfNewPassword('');
+      setNewPassword('');
+    } else {
+      try {
+        const res = await axiosInstance.post('/updatePassword', {
+          email: email,
+          oldPassword: oldPassword,
+          newPassword: newPassword
+        });
+
+        if (res.status === 200) {
+          Alert.alert('Password changed successfully!');
+          navigation.goBack();
+        } else if (res.status === 401) {
+          Alert.alert('Incorrect Old Password', 'Kindly check your previous password');
+        }
+      } catch (error) {
+        console.error('Error updating password:', error);
+        Alert.alert('Error', 'An error occurred while updating the password. Please try again later.');
+      }
     }
-   }
   };
 
   return (
@@ -80,7 +87,7 @@ const ChangePassword = ({navigation}) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={!newPassword || !confNewPassword || newPassword !== confNewPassword}>
             <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
         </View>
