@@ -55,7 +55,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
 // Register endpoint
 app.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.query;
+    const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User is already registered" });
 
@@ -63,7 +63,7 @@ app.post('/register', async (req, res) => {
     await newUser.save();
     res.status(200).json({ message: "User registered successfully. Verification email sent." });
   } catch (error) {
-    console.log('Error in the end', error.response || error.message || error);
+    console.error(`Error updating data: ${JSON.stringify(error, null, 2)}`);
     res.status(500).json({ message: "Error registering" });
   }
 });

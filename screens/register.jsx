@@ -4,6 +4,7 @@ import { scale } from 'react-native-size-matters'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import axios from 'axios'
+import axiosInstance from '../assets/utils/axiosConfig'
 
 const Register = ({ navigation }) => {
 
@@ -22,14 +23,13 @@ const Register = ({ navigation }) => {
       password: password.trim()
     }
   
-    axios.post('http://localhost:8000/register', user)
+    axiosInstance.post('/register', user)
       .then((response) => {
         console.log(response)
-        Alert.alert("Registered Successfully!", 'You have registered successfully, Reading Rampage on!')
         setEmail("")
         setName("")
         setPassword("")
-        navigation.replace('BottomTabs');
+        Alert.alert('Registration Successfull!','Login Now')
       }).catch((error) => {
         console.log(`Error in the end ${error}`)
         Alert.alert("Registration failed!","Registration has failed, kindly try again")
