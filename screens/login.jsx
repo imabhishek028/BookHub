@@ -45,7 +45,7 @@ const Login = ({ navigation }) => {
       const userInfo = email;
       await AsyncStorage.setItem('userEmail', userInfo);
       await AsyncStorage.setItem('authToken', token);
-      navigation.navigate('BottomTabs');
+      navigation.replace('BottomTabs');
     } catch (err) {
       Alert.alert("Login Failed", "Invalid email or password");
       console.log(err.request || err.message || err);

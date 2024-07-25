@@ -95,6 +95,11 @@ const UserProfile = ({navigation}) => {
         />
     );
 
+    const onPressLogOut=()=>{
+     AsyncStorage.clear();
+     navigation.replace('login')
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.imageContainer}>
@@ -194,6 +199,11 @@ const UserProfile = ({navigation}) => {
                 Change Password
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+            style={styles.logOut}
+            onPress={onPressLogOut}>
+            <FontAwesome5 name='sign-out-alt' size={scale(24)} color={'black'} />
+            </TouchableOpacity>
         </SafeAreaView>
     );
 };
@@ -280,6 +290,10 @@ const styles = StyleSheet.create({
     passwordText:{
       color: 'blue',
       fontSize: scale(14),
+    },
+    logOut:{
+alignItems:'center',
+marginTop:scale(60)
     }
 });
 
