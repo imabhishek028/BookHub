@@ -24,6 +24,7 @@ mongoose.connect('mongodb+srv://imabhishek028:imabhishek028@cluster0.yjpyfbo.mon
 app.listen(port, () => console.log(`Server running on Port ${port}`));
 
 const User = require('./models/user.jsx');
+const Review = require('./models/reviews.jsx');
 
 const generateSecretKey = () => crypto.randomBytes(32).toString("hex");
 const secretKey = generateSecretKey();
@@ -153,7 +154,7 @@ app.post('/createBook', async (req, res) => {
     res.status(200).send({ message: "Book created!" });
   } catch (err) {
     console.error('Error saving book:', err);
-    res.status(500).send({ err });
+    return es.status(500).send({ err });
   }
 });
 
@@ -166,7 +167,7 @@ app.get('/getCurrentCollections', async (req, res) => {
     return res.status(200).json(createdBooks);
   } catch (err) {
     console.error('Error getting collections:', err);
-    res.status(500).send({ err });
+    return res.status(500).send({ err });
   }
 });
 
@@ -203,7 +204,7 @@ app.post('/addToFav', async (req, res) => {
     res.status(200).json({ message: "Book added to favourites" });
   } catch (error) {
     console.error('Error adding to favourites:', error);
-    res.status(500).json({ message: 'Error adding to favourites' });
+    return res.status(500).json({ message: 'Error adding to favourites' });
   }
 });
 
@@ -219,7 +220,7 @@ app.delete('/removeFromFav', async (req, res) => {
     res.status(200).json({ message: "Book removed from favourites" });
   } catch (error) {
     console.error('Error removing from favourites:', error);
-    res.status(500).json({ message: 'Error removing from favourites' });
+    return res.status(500).json({ message: 'Error removing from favourites' });
   }
 });
 
@@ -234,7 +235,7 @@ app.get('/checkIfFav', async (req, res) => {
     res.status(200).json({ isFavourite });
   } catch (error) {
     console.error('Error checking favourite:', error);
-    res.status(500).json({ message: 'Error checking favourite' });
+    return res.status(500).json({ message: 'Error checking favourite' });
   }
 });
 
@@ -247,7 +248,7 @@ app.get('/getFavourites', async (req, res) => {
     return res.status(200).json(FavBooks);
   } catch (error) {
     console.error('Error fetching favourites:', error);
-    res.status(500).json({ message: 'Error checking favourite' });
+    return res.status(500).json({ message: 'Error checking favourite' });
   }
 })
 
@@ -263,7 +264,7 @@ app.post('/buyBook', async (req, res) => {
     res.status(200).json({ message: "Book added to favourites" });
   } catch (error) {
     console.error('Error adding to favourites:', error);
-    res.status(500).json({ message: 'Error adding to favourites' });
+    return res.status(500).json({ message: 'Error adding to favourites' });
   }
 });
 
@@ -276,31 +277,71 @@ app.get('/getBuyHistory', async (req, res) => {
     return res.status(200).json(books);
   } catch (error) {
     console.error('Error fetching buy history:', error);
-    res.status(500).json({ message: 'Error fetching buy history' });
+    return res.status(500).json({ message: 'Error fetching buy history' });
   }
 })
 
 //Update Password:
-app.post('/updatePassword', async(req,res)=>{
-  const {email, oldPassword, newPassword}=req.body;
-  try{
-    const user=await User.findOne({email:email})
-    if(user.password.toString()!=oldPassword){
-      return res.status(401).json({message:'Incorrect previous password'})
-    }else{
-      user.password=newPassword;
+app.post('/updatePassword', async (req, res) => {
+  const { email, oldPassword, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email: email })
+    if (user.password.toString() != oldPassword) {
+      return res.status(401).json({ message: 'Incorrect previous password' })
+    } else {
+      user.password = newPassword;
       await user.save();
-      return res.status(200).json({message:"Password updated successfully"})
+      return res.status(200).json({ message: "Password updated successfully" })
     }
-  }catch(err){
+  } catch (err) {
     console.error('Error updating password:', err);
-    res.status(500).json({ message: 'Error updating password' });
+    return res.status(500).json({ message: 'Error updating password' });
   }
 })
 
-//Add review
-app.post('/review', async(req,res)=>{
-  
+//Add review 
+app.post('/review', async (req, res) => {
+  try {
+    const { email, bookId, rating, review } = req.body;
+
+    if (!email || !bookId || !rating || !review) {
+      return res.status(400).json({ message: 'Invalid input data' });
+    }
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      console.error('User Not Found');
+      return res.status(404).json({ message: 'User not found' });
+    }
+    let bookReview = await Review.findOne({ bookId: bookId });
+    if (bookReview) {
+      const userReview = bookReview.reviews.find(r => r.userid === email);
+      if (userReview) {
+        userReview.rating = rating;
+        userReview.reviewBody = review;
+      } else {
+        bookReview.reviews.push({ userid: email, rating: rating, reviewBody: review });
+      }
+      await bookReview.save();
+      return res.status(200).json({ message: 'Review added successfully' });
+    } else {
+      bookReview = new Review({ bookId: bookId, reviews: [{ userid: email, rating: rating, reviewBody: review }] });
+      await bookReview.save();
+      return res.status(200).json({ message: 'Review added successfully' });
+    }
+  } catch (err) {
+    console.error(`Error Reviewing: ${err}`);
+    return res.status(500).json({ message: "Error reviewing the book" });
+  }
+})
+
+// get current review to edit
+app.get('/getUserReview', async (req, res) => {
+  try {
+
+  } catch (err) {
+    console.error(`Error Reviewing: ${err}`);
+    return res.status(500).json({ message: "Error reviewing the book" });
+  }
 })
 
 

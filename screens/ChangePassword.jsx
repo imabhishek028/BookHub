@@ -53,7 +53,6 @@ const ChangePassword = ({navigation}) => {
     <SafeAreaView style={styles.container}>
         <View style={styles.inner}>
           <Text style={styles.title}>Change Password</Text>
-
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Old Password</Text>
             <TextInput

@@ -17,6 +17,7 @@ const BookDetails = ({ navigation, route }) => {
             try {
                 const storedEmail = await AsyncStorage.getItem('userEmail');
                 if (storedEmail) setUserEmail(storedEmail);
+                getBookDetails(storedEmail);
             } catch (err) {
                 console.log(err);
             }
@@ -24,44 +25,40 @@ const BookDetails = ({ navigation, route }) => {
         getUserEmail();
     }, []);
 
-    useEffect(() => {
-        const getBookDetails = async () => {
-            try {
-                const response = await axiosInstance.get(`https://www.googleapis.com/books/v1/volumes/${clickedBookId}`, {
-                    params: {
-                        key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
-                    }
-                });
-                const bookInfo = response.data.volumeInfo;
-                const saleInfo = response.data.saleInfo;
-                const bookDetails = {
-                    title: bookInfo.title,
-                    author: bookInfo.authors ? bookInfo.authors[0] : 'Unknown Author',
-                    publishedDate: bookInfo.publishedDate,
-                    description: bookInfo.description,
-                    coverImage: bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : null,
-                    price: saleInfo.listPrice ? `${saleInfo.listPrice.amount} ${saleInfo.listPrice.currencyCode}` : 'Book not for sale',
-                };
+    const getBookDetails = async (email) => {
+        try {
+            const response = await axiosInstance.get(`https://www.googleapis.com/books/v1/volumes/${clickedBookId}`, {
+                params: {
+                    key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
+                }
+            });
+            const bookInfo = response.data.volumeInfo;
+            const saleInfo = response.data.saleInfo;
+            const bookDetails = {
+                title: bookInfo.title,
+                author: bookInfo.authors ? bookInfo.authors[0] : 'Unknown Author',
+                publishedDate: bookInfo.publishedDate,
+                description: bookInfo.description,
+                coverImage: bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : null,
+                price: saleInfo.listPrice ? `${saleInfo.listPrice.amount} ${saleInfo.listPrice.currencyCode}` : 'Book not for sale',
+            };
 
-                setBookData(bookDetails);
+            setBookData(bookDetails);
 
-                const checkResponse = await axiosInstance.get('/checkIfFav', {
-                    params: {
-                        email: email,
-                        bookId: clickedBookId
-                    }
-                });
-                setIsFavourite(checkResponse.data.isFavourite);
+            const checkResponse = await axiosInstance.get('/checkIfFav', {
+                params: {
+                    email: email,
+                    bookId: clickedBookId
+                }
+            });
+            setIsFavourite(checkResponse.data.isFavourite);
 
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        getBookDetails();
-    }, [email]);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const addToFavourites = async () => {
         try {
@@ -99,7 +96,7 @@ const BookDetails = ({ navigation, route }) => {
         }
     };
 
-    const onPressBuy=async ()=>{
+    const onPressBuy = async () => {
         try {
             await axiosInstance.post('/buyBook', {
                 email: email,
@@ -127,9 +124,9 @@ const BookDetails = ({ navigation, route }) => {
             </SafeAreaView>
         );
     }
-   const onPressReview=()=>{
-navigation.navigate('Review',{email, clickedBookId});
-   }
+    const onPressReview = () => {
+        navigation.navigate('Review', { email, clickedBookId });
+    }
 
 
     return (
@@ -168,17 +165,17 @@ navigation.navigate('Review',{email, clickedBookId});
                     onPress={onPressBuy}
                 >
                     <Text style={styles.favouriteButtonText}>
-                      Buy
+                        Buy
                     </Text>
                 </TouchableOpacity>
-                <View style={{flexDirection:'row'}}>
-                <Text style={styles.ReviewText}>
-                    Reviews
-                </Text>
-                <TouchableOpacity style={{marginLeft:scale(220)}}
-                onPress={onPressReview}>
-                    <FontAwesome5 name='pen' size={18} color={'#000000'}/>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.ReviewText}>
+                        Reviews
+                    </Text>
+                    <TouchableOpacity style={{ marginLeft: scale(220) }}
+                        onPress={onPressReview}>
+                        <FontAwesome5 name='pen' size={18} color={'#000000'} />
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -236,7 +233,7 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlign: 'left',
         lineHeight: scale(22),
-        padding:scale(10)
+        padding: scale(10)
     },
     price: {
         fontSize: scale(18),
@@ -251,7 +248,7 @@ const styles = StyleSheet.create({
         padding: scale(10),
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop:scale(10),
+        marginTop: scale(10),
     },
     favouriteButtonText: {
         color: '#FFFFFF',
@@ -267,7 +264,7 @@ const styles = StyleSheet.create({
         color: 'red',
         textAlign: 'center',
     },
-    ReviewText:{
+    ReviewText: {
         color: '#041E42',
         fontWeight: 'bold',
         fontSize: scale(18),

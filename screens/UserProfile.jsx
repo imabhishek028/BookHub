@@ -108,7 +108,7 @@ const UserProfile = ({navigation}) => {
                     style={styles.image}
                 />
                 <TouchableOpacity style={styles.editPhotoButton} onPress={selectPhoto}>
-                    <FontAwesome5 name='pen' size={scale(18)} color={'#041E42'} />
+                    <FontAwesome5 name='pen' size={scale(18)} color={'#FFFFFF'} />
                 </TouchableOpacity>
                 <Text style={styles.emailText}>
                     {email}
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         borderColor: '#041E42',
     },
     editPhotoButton: {
-        backgroundColor: '#FEBE10',
+        backgroundColor: '#041E42',
         padding: scale(10),
         borderRadius: scale(5),
         marginTop: scale(10),
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     saveButton: {
-        backgroundColor: '#FEBE10',
+        backgroundColor: '#041E42',
         height: scale(40),
         alignItems: 'center',
         justifyContent: 'center',
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ddd',
     },
     saveText: {
-        color: '#041E42',
+        color: '#FFFFFF',
         fontSize: scale(16),
     },
     passwordText:{
