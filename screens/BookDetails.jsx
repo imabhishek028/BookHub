@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../assets/utils/axiosConfig';
 import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const BookDetails = ({ navigation, route }) => {
     const { clickedBookId } = route.params;
@@ -60,7 +61,7 @@ const BookDetails = ({ navigation, route }) => {
         };
 
         getBookDetails();
-    }, [clickedBookId, email]);
+    }, [email]);
 
     const addToFavourites = async () => {
         try {
@@ -126,6 +127,10 @@ const BookDetails = ({ navigation, route }) => {
             </SafeAreaView>
         );
     }
+   const onPressReview=()=>{
+navigation.navigate('Review',{email, clickedBookId});
+   }
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -166,6 +171,15 @@ const BookDetails = ({ navigation, route }) => {
                       Buy
                     </Text>
                 </TouchableOpacity>
+                <View style={{flexDirection:'row'}}>
+                <Text style={styles.ReviewText}>
+                    Reviews
+                </Text>
+                <TouchableOpacity style={{marginLeft:scale(220)}}
+                onPress={onPressReview}>
+                    <FontAwesome5 name='pen' size={18} color={'#000000'}/>
+                </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -252,5 +266,12 @@ const styles = StyleSheet.create({
         fontSize: scale(18),
         color: 'red',
         textAlign: 'center',
+    },
+    ReviewText:{
+        color: '#041E42',
+        fontWeight: 'bold',
+        fontSize: scale(18),
+        textDecorationLine: 'underline',
+        marginBottom: scale(10),
     },
 });

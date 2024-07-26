@@ -19,6 +19,7 @@ import BookDetails from '../screens/BookDetails';
 import createdBooksView from '../screens/createdBooksView';
 import CreatedBooksView from '../screens/createdBooksView';
 import ChangePassword from '../screens/ChangePassword';
+import ReviewBook from '../screens/ReviewBook';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -159,6 +160,17 @@ export default function StackNavigator() {
          options={{
             tabBarLabel: 'Favourites',
             title: 'Favourites',
+            headerTintColor: '#041E42',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              fontSize: scale(18),
+            }
+          }} />
+           <Stack.Screen name='Review'
+         component={ReviewBook} 
+         options={{
+            tabBarLabel: 'Review',
+            title: 'Review',
             headerTintColor: '#041E42',
             headerTitleStyle: {
               fontWeight: 'bold',
