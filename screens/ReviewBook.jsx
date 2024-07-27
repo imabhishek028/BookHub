@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { scale } from 'react-native-size-matters';
 import StarRating from 'react-native-star-rating-widget';
@@ -8,6 +8,33 @@ const ReviewBook = ({ navigation, route }) => {
     const { email, clickedBookId } = route.params;
     const [starRating, setStarRating] = useState(0);
     const [review, setReview] = useState('');
+
+    useEffect(() => {
+        const getCurrentReview = async () => {
+            try {
+                const response = await axiosInstance.get('/getUserReview', {
+                    params: {
+                        email: email,
+                        bookId: clickedBookId
+                    }
+                });
+
+                if (response.status === 200) {
+                    const { rating, reviewBody } = response.data;
+                    setStarRating(rating);
+                    setReview(reviewBody);
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    console.log('No existing review found');
+                } else {
+                    console.error('Error fetching review:', error);
+                }
+            }
+        };
+
+        getCurrentReview();
+    }, [email, clickedBookId]);
 
     const onPressSubmit = async () => {
         if (starRating === 0 || !review) {
@@ -20,7 +47,7 @@ const ReviewBook = ({ navigation, route }) => {
                     rating: starRating,
                     review: review,
                 });
-                Alert.alert('Review added successfully!', 'Your review is now recorded.');
+                Alert.alert('Review added/updated successfully!', 'Your review is now recorded.');
             } catch (error) {
                 console.error('Error submitting review:', error);
                 Alert.alert('Error', 'Failed to submit the review. Please try again.');

@@ -4,15 +4,17 @@ const reviewSchema = new mongoose.Schema({
     bookId: {
         type: String,
         required: true,
-        unique: true,
+        unique:true,
     },
     reviews: [
         {
             userid: {
                 type: String,
+                required: true,
             },
             rating: {
                 type: Number,
+
             },
             reviewBody: {
                 type: String,

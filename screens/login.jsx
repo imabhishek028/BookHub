@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../assets/utils/axiosConfig';
+import axios from 'axios';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ const Login = ({ navigation }) => {
       }
     }
     checkLoginStatus();
-  },[])
+  }, [])
 
   const onPressSignUp = () => {
     navigation.navigate('register');
