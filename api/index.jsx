@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const cloudinary = require('../assets/utils/cloudinaryConfig.jsx');
 
+
 const app = express();
 const port = 8000;
 
@@ -304,59 +305,45 @@ app.post('/updatePassword', async (req, res) => {
 app.post('/review', async (req, res) => {
   try {
     const { email, bookId, rating, review } = req.body;
-    console.log('Received data:', { email, bookId, rating, review });
+
     if (!email || !bookId || !rating || !review) {
       return res.status(400).json({ message: 'Invalid input data' });
     }
 
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const userReview = await Review.findOne({ bookId, userid: email });
+    if (userReview) {
+      userReview.rating = rating;
+      userReview.reviewBody = review;
+      await userReview.save();
+      return res.status(200).json({ message: 'Review added successfully' });
+    }
+    else {
+      console.log(bookId);
+      const newReview = await Review.create({ bookId, userid: email, rating, reviewBody: review });
+      console.log(newReview);
+      return res.status(200).json({ message: 'Review added successfully' });
     }
 
-    let bookReview = await Review.findOne({ bookId: bookId });
-
-    if (bookReview) {
-      const userReview = bookReview.reviews.find(r => r.userid === email);
-      if (userReview) {
-        userReview.rating = rating;
-        userReview.reviewBody = review;
-      } else {
-        bookReview.reviews.push({ userid: email, rating, reviewBody: review });
-      }
-      await bookReview.save();
-    } else {
-      bookReview = new Review({ bookId: bookId, reviews: [{ userid: email, rating, reviewBody: review }] });
-      await bookReview.save();
-    }
-
-    return res.status(200).json({ message: 'Review added successfully' });
   } catch (err) {
-    console.error(`Error Reviewing: ${err}`);
-    return res.status(500).json({ message: "Error reviewing the book" });
+    console.error(`Error Reviewing: ${err.message}`);
+    return res.status(500).json({ message: err.message || err });
   }
 });
 
-// get current review to edit
+
+// end point to get exsisting review
 app.get('/getUserReview', async (req, res) => {
   try {
     const { email, bookId } = req.query;
+
     if (!email || !bookId) {
       return res.status(400).json({ message: 'Invalid input data' });
     }
-    const review = await Review.findOne({ bookId: bookId });
-
+    const review = await Review.findOne({ bookId, userid: email });
     if (!review) {
-      return res.status(404).json({ message: 'Book not found' });
+      return res.status(404).json({ message: 'Review not found' });
     }
-
-    const userReview = review.reviews.find(r => r.userid === email);
-
-    if (!userReview) {
-      return res.status(404).json({ message: 'User review not found' });
-    }
-
-    return res.status(200).json(userReview);
+    return res.status(200).json(review);
   } catch (error) {
     console.error('Error fetching review:', error);
     return res.status(500).json({ message: 'Error fetching review' });

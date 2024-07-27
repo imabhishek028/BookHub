@@ -14,9 +14,9 @@ const ReviewBook = ({ navigation, route }) => {
             try {
                 const response = await axiosInstance.get('/getUserReview', {
                     params: {
-                        email: email,
-                        bookId: clickedBookId
-                    }
+                        email,
+                        bookId: clickedBookId,
+                    },
                 });
 
                 if (response.status === 200) {
@@ -42,10 +42,10 @@ const ReviewBook = ({ navigation, route }) => {
         } else {
             try {
                 await axiosInstance.post('/review', {
-                    email: email,
+                    email,
                     bookId: clickedBookId,
                     rating: starRating,
-                    review: review,
+                    review,
                 });
                 Alert.alert('Review added/updated successfully!', 'Your review is now recorded.');
             } catch (error) {
