@@ -16,12 +16,12 @@ import Cart from '../screens/Cart';
 import CreateBook from '../screens/CreateBook';
 import Favourites from '../screens/Favourites';
 import BookDetails from '../screens/BookDetails';
-import createdBooksView from '../screens/createdBooksView';
 import CreatedBooksView from '../screens/createdBooksView';
 import ChangePassword from '../screens/ChangePassword';
 import ReviewBook from '../screens/ReviewBook';
 import ForgotPassword from '../screens/ForgotPassword';
 import Email from '../screens/Email';
+import Reviews from '../screens/Reviews';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -188,6 +188,17 @@ export default function StackNavigator() {
          component={Email} 
          options={{
             headerShown:false
+          }}/>
+            <Stack.Screen name='Reviews'
+         component={Reviews} 
+         options={{
+          tabBarLabel: 'Reviews',
+          title: 'Reviews',
+          headerTintColor: '#041E42',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: scale(18),
+          },
           }}/>
       </Stack.Navigator>
     </NavigationContainer>

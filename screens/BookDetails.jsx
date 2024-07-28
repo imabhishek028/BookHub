@@ -60,6 +60,10 @@ const BookDetails = ({ navigation, route }) => {
         }
     };
 
+    const onPressReviews=()=>{
+        navigation.navigate('Reviews',{clickedBookId})
+    }
+
     const addToFavourites = async () => {
         try {
             await axiosInstance.post('/addToFav', {
@@ -169,9 +173,12 @@ const BookDetails = ({ navigation, route }) => {
                     </Text>
                 </TouchableOpacity>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={styles.ReviewText}>
-                        Reviews
-                    </Text>
+                    <TouchableOpacity
+                    onPress={onPressReviews}>
+                        <Text style={styles.ReviewText}>
+                            Reviews
+                        </Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={{ marginLeft: scale(220) }}
                         onPress={onPressReview}>
                         <FontAwesome5 name='pen' size={18} color={'#000000'} />
