@@ -54,10 +54,10 @@ const Reviews = ({ route }) => {
                 prevData.map(review =>
                     review._id === reviewId
                         ? {
-                              ...review,
-                              likes: action === 'like' ? review.likes + 1 : review.likes,
-                              dislikes: action === 'dislike' ? review.dislikes + 1 : review.dislikes,
-                          }
+                            ...review,
+                            likes: action === 'like' ? review.likes + 1 : review.likes,
+                            dislikes: action === 'dislike' ? review.dislikes + 1 : review.dislikes,
+                        }
                         : review
                 )
             );
@@ -69,10 +69,16 @@ const Reviews = ({ route }) => {
     const renderItem = ({ item }) => {
         return (
             <View style={styles.renderItem}>
-                <Text style={styles.emailText}>Reviewer: {item.userid}</Text>
-                <Text style={styles.reviewText}>{item.reviewBody}</Text>
+                <Text style={styles.emailText}>
+                    {item.userid}
+                </Text>
+                <Text style={styles.reviewText}>
+                    {item.reviewBody}
+                </Text>
                 <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>Rating: {item.rating}</Text>
+                    <Text style={styles.ratingText}>
+                        Rating: {item.rating}
+                    </Text>
                 </View>
                 <View style={styles.likeDislikeContainer}>
                     <TouchableOpacity onPress={() => handleLikeDislike(item._id, 'like')}>
@@ -119,8 +125,8 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     emailText: {
-        fontSize: scale(14),
-        color: '#333',
+        fontSize: scale(12),
+        color: '#ccc',
         marginBottom: scale(5),
     },
     reviewText: {
@@ -142,7 +148,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: scale(100),
     },
-    number:{
-        color:'#000000'
+    number: {
+        color: '#000000'
     }
 });
