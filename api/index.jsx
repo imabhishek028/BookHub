@@ -430,6 +430,7 @@ app.get('/getBookReviews', async (req, res) => {
   }
 });
 
+
 // Delete user review
 app.delete('/deleteUserReview', async (req, res) => {
   try {
@@ -454,25 +455,32 @@ app.delete('/deleteUserReview', async (req, res) => {
   }
 });
 
+
 // endpoint to update user likes:
 app.post('/updateLikes', async (req, res) => {
   try {
-    const { email, bodyId } = req.body;
-    const bookReview = await Review.findOne({ bookId })
+    const { email, bookId, reviewId, action } = req.body;
+    const bookReview = await Review.findOne({ bookId });
     if (!bookReview) {
-      return res.status(404).json({ message: "Book not found" })
+      return res.status(404).json({ message: "Book not found" });
     } else {
-      const userReview = bookReview.reviews.find(r => r.userid.toString() === email)
+      const userReview = bookReview.reviews.id(reviewId);
       if (!userReview) {
-        return res.status(404).json({ message: "User not found" })
+        return res.status(404).json({ message: "Review not found" });
       } else {
-
+        if (action === 'like') {
+          userReview.likes += 1;
+        } else if (action === 'dislike') {
+          userReview.dislikes += 1;
+        }
+        await bookReview.save();
+        return res.status(200).json({ message: "Review updated successfully" });
       }
     }
-  } catch (err) {
-    console.error('Error deleting Review:', error);
-    return res.status(500).json({ message: 'Error Deleting review' });
+  } catch (error) {
+    console.error('Error updating review:', error);
+    return res.status(500).json({ message: 'Error updating review' });
   }
-})
+});
 
 

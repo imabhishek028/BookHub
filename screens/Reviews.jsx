@@ -1,43 +1,91 @@
-import { SafeAreaView, StatusBar, StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
-import { FlatList, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, FlatList } from 'react-native';
 import { scale } from 'react-native-size-matters';
 import axiosInstance from '../assets/utils/axiosConfig';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 
-const Reviews = ({ navigation, route }) => {
+const Reviews = ({ route }) => {
     const { clickedBookId } = route.params;
-    const [loading, setLoading] = useState(true)
-    const [data, setData] = useState()
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+    const [email, setUserEmail] = useState('');
+
+    useEffect(() => {
+        const getUserEmail = async () => {
+            try {
+                const email = await AsyncStorage.getItem('userEmail');
+                if (email) setUserEmail(email);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        getUserEmail();
+    }, []);
 
     useEffect(() => {
         const getReviews = async () => {
             setLoading(true);
             try {
-                const res = await axiosInstance('/getBookReviews', {
-                   bookId:clickedBookId,
-                })
-                setData(res.data.bookReviews)
-                console.log(res.data.bookReviews)
+                const res = await axiosInstance.get('/getBookReviews', {
+                    params: {
+                        bookId: clickedBookId,
+                    },
+                });
+                setData(res.data.bookReviews.reviews);
             } catch (err) {
-                console.log(`Error getting Reviews :${err}`)
-            }finally{
-                setLoading(false)
+                console.log(`Error getting Reviews: ${err}`);
+            } finally {
+                setLoading(false);
             }
-        }
+        };
         getReviews();
-    }, [clickedBookId])
+    }, [clickedBookId]);
 
+    const handleLikeDislike = async (reviewId, action) => {
+        try {
+            await axiosInstance.post('/updateLikes', {
+                email:email,
+                bookId: clickedBookId,
+                reviewId,
+                action,
+            });
+            setData(prevData =>
+                prevData.map(review =>
+                    review._id === reviewId
+                        ? {
+                              ...review,
+                              likes: action === 'like' ? review.likes + 1 : review.likes,
+                              dislikes: action === 'dislike' ? review.dislikes + 1 : review.dislikes,
+                          }
+                        : review
+                )
+            );
+        } catch (error) {
+            console.log(`Error updating likes/dislikes: ${error}`);
+        }
+    };
 
     const renderItem = ({ item }) => {
         return (
             <View style={styles.renderItem}>
-            
+                <Text style={styles.reviewText}>{item.reviewBody}</Text>
+                <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingText}>Rating: {item.rating}</Text>
+                </View>
+                <View style={styles.likeDislikeContainer}>
+                    <TouchableOpacity onPress={() => handleLikeDislike(item._id, 'like')}>
+                        <FontAwesome5 name="thumbs-up" size={scale(20)} color="green" />
+                        <Text>{item.likes}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleLikeDislike(item._id, 'dislike')}>
+                        <FontAwesome5 name="thumbs-down" size={scale(20)} color="red" />
+                        <Text>{item.dislikes}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     };
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -47,48 +95,18 @@ const Reviews = ({ navigation, route }) => {
                 <FlatList
                     data={data}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item._id.toString()}
-                    style={{ marginBottom: scale(200) }}
+                    keyExtractor={item => item._id.toString()}
                 />
             )}
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default Reviews
+export default Reviews;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
-    },
-    touchableView: {
-        backgroundColor: '#FFFAFA',
-        height: scale(50),
-        width: scale(157),
-        marginLeft: scale(10),
-        marginRight: scale(10),
-        marginTop: scale(10),
-        elevation: 2,
-        borderRadius: scale(10),
-    },
-    touchableText: {
-        color: '#041E42',
-        alignSelf: 'center',
-        padding: scale(15),
-        fontSize: scale(15),
-        fontWeight: 'bold',
-    },
-    favText: {
-        color: '#041E42',
-        fontWeight: 'bold',
-        fontSize: scale(24),
-        textDecorationLine: 'underline',
-        marginBottom: scale(10),
-    },
-    favTextView: {
-        alignContent: 'flex-start',
-        marginTop: scale(20),
-        marginLeft: scale(20),
+        flex: 1,
     },
     renderItem: {
         marginLeft: scale(10),
@@ -99,41 +117,23 @@ const styles = StyleSheet.create({
         borderRadius: scale(5),
         elevation: 1,
     },
-    bookTitle: {
+    reviewText: {
         fontSize: scale(16),
-        fontWeight: 'bold',
-        color: '#041E42',
-        flexShrink: 1,
+        color: '#333',
+        marginBottom: scale(5),
     },
-    bookAuthor: {
+    ratingContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: scale(5),
+    },
+    ratingText: {
         fontSize: scale(14),
         color: '#041E42',
-        marginLeft: scale(5),
     },
-    bookTitleView: {
-        marginBottom: scale(5),
-    },
-    authorView: {
+    likeDislikeContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: scale(5),
-        width: scale(160),
-    },
-    publishYearView: {
-        marginTop: scale(5),
-        flexDirection: 'row',
-    },
-    publishYearText: {
-        fontSize: scale(12),
-        color: 'gray',
-    },
-    yearText: {
-        fontSize: scale(12),
-        color: '#041E42',
-    },
-    coverImages: {
-        height: scale(100),
+        justifyContent: 'space-between',
         width: scale(100),
-        marginLeft: scale(10),
     },
-})
+});
