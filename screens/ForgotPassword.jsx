@@ -1,31 +1,43 @@
 import { Alert, Keyboard, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-native-gesture-handler';
+import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { scale } from 'react-native-size-matters';
 import axiosInstance from '../assets/utils/axiosConfig';
 
+const ForgotPassword = ({ navigation, route }) => {
+    const { email } = route.params;
+    const [passKey, setPassKey] = useState('');
+    const [password, setPassword] = useState('');
+    const [userEmail, setUserEmail] = useState('');
 
-
-const ForgotPassword = ({navigation, route}) => {
-    const [passKey, setpassKey] = useState();
-    const [password, setPassword] = useState();
-
+    useEffect(() => {
+        if (email) {
+            setUserEmail(email);
+        }
+    }, [email]);
 
     const handleSubmit = async () => {
+        Keyboard.dismiss()
+        if (!passKey || !password || !userEmail) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
         try {
-            const res = await axiosInstance.post('/updatePassword', {
-                email: email,
+            const res = await axiosInstance.post('/resetPassword', {
+                email: userEmail,
+                passKey: passKey,
+                password: password
             });
-
+            console.log('Response:', res);
             if (res.status === 200) {
-                Alert.alert('Email sent!','Email containing passkey is sent');
-                navigation.goBack();
+                Alert.alert('Success', 'Password has been reset successfully, Login Now');
+                navigation.replace('login');
             } else {
-                Alert.alert('Invalid Passkey', 'Kindly try again');
+                Alert.alert('Error', 'Invalid Passkey or Password');
             }
         } catch (error) {
-            console.error('Error reseting password:', error);
-            Alert.alert('Error', 'An error occurred while reseting the password. Please try again later.');
+            console.error('Error resetting password:', error);
+            Alert.alert('Error', 'An error occurred while resetting the password. Please try again later.');
         }
     };
 
@@ -39,20 +51,18 @@ const ForgotPassword = ({navigation, route}) => {
                         placeholder='Enter Passkey From Email'
                         style={styles.textInput}
                         value={passKey}
-                        onChangeText={setpassKey}
+                        onChangeText={setPassKey}
                     />
                 </View>
-
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>New Password</Text>
                     <TextInput
-                        placeholder='Confirm Your New Password'
+                        placeholder='Enter Your New Password'
                         style={styles.textInput}
                         value={password}
                         onChangeText={setPassword}
                     />
                 </View>
-
                 <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
@@ -60,8 +70,6 @@ const ForgotPassword = ({navigation, route}) => {
         </SafeAreaView>
     );
 };
-
-export default ForgotPassword
 
 const styles = StyleSheet.create({
     container: {
@@ -113,4 +121,6 @@ const styles = StyleSheet.create({
         fontSize: scale(18),
         fontWeight: 'bold',
     },
-})
+});
+
+export default ForgotPassword;

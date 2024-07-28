@@ -35,7 +35,7 @@ const generateSecretKey = () => {
 
 const secretKey = generateSecretKey();
 
-const sendChangePasswordMail = async (email, verificationToken) => {
+const sendChangePasswordMail = async (email, secretKey) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -58,7 +58,6 @@ const sendChangePasswordMail = async (email, verificationToken) => {
     console.log(`Error sending mail: ${error}`);
   }
 };
-
 
 
 // Register endpoint
@@ -120,23 +119,22 @@ app.post('/forgotPasswordEmail', async (req, res) => {
 // endpoint to reset user password:
 app.post('/resetPassword', async (req, res) => {
   try {
-    const { email, passkey, password } = req.body;
-
-    const user = await User.findOne({ email: email })
+    const { email, passKey, password } = req.body;
+    const user = await User.findOne({email})
     if (!user) {
       return res.status(404).json({ message: 'No account associated with this email' })
     } else {
-      if (passkey == secretKey) {
+      if (passKey === secretKey) {
         user.password = password;
         await user.save();
         return res.status(200).json({ message: "Password Updated" })
       } else {
-        return res.status(400).json({ message: "Incorrect passkey" })
+        return res.status(400).send({ message: "Incorrect passkey" })
       }
     }
   } catch (err) {
     console.log(`Error updating password : ${err}`);
-    res.status(500).json({ message: `Error updating password ${err}` });
+    return res.status(500).json({ message: `Error updating password ${err}` });
   }
 })
 

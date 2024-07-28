@@ -4,15 +4,17 @@ import { TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-nat
 import { scale } from 'react-native-size-matters';
 import axiosInstance from '../assets/utils/axiosConfig';
 
-const Email = () => {
+const Email = ({navigation, route}) => {
     const [email, setEmail] = useState('');
 
     const handleSubmit = async () => {
-
+        Keyboard.dismiss();
         try {
-            const res = await axiosInstance.post('/updatePassword', {
+            const res = await axiosInstance.post('/forgotPasswordEmail', {
                 email: email,
             });
+            Alert.alert('Passkey sent!','Passkey has now been sent to the given email')
+            navigation.replace('Forgot Password',{email})
         } catch (err) {
             console.log(`Error sending email ${err}`)
         }
