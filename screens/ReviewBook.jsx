@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TextInput, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { scale } from 'react-native-size-matters';
 import StarRating from 'react-native-star-rating-widget';
 import axiosInstance from '../assets/utils/axiosConfig';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const ReviewBook = ({ navigation, route }) => {
     const { email, clickedBookId } = route.params;
     const [starRating, setStarRating] = useState(0);
     const [review, setReview] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [hasPreviousReview, setHasPreviousReview] = useState(false);
 
     useEffect(() => {
         const getCurrentReview = async () => {
+            setLoading(true);
             try {
                 const response = await axiosInstance.get('/getUserReview', {
                     params: {
@@ -20,16 +24,20 @@ const ReviewBook = ({ navigation, route }) => {
                 });
 
                 if (response.status === 200) {
-                    const { rating, reviewBody } = response.data;
-                    setStarRating(rating);
-                    setReview(reviewBody);
+                    const { userReview } = response.data;
+                    setStarRating(userReview.rating);
+                    setReview(userReview.reviewBody);
+                    setHasPreviousReview(true);
                 }
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     console.log('No existing review found');
                 } else {
                     console.error('Error fetching review:', error);
+                    Alert.alert('Error', 'Failed to fetch review. Please try again.');
                 }
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -40,6 +48,7 @@ const ReviewBook = ({ navigation, route }) => {
         if (starRating === 0 || !review) {
             Alert.alert('Review not given!', 'Kindly rate and review.');
         } else {
+            setLoading(true);
             try {
                 await axiosInstance.post('/review', {
                     email,
@@ -51,37 +60,73 @@ const ReviewBook = ({ navigation, route }) => {
             } catch (error) {
                 console.error('Error submitting review:', error);
                 Alert.alert('Error', 'Failed to submit the review. Please try again.');
+            } finally {
+                setLoading(false);
             }
+        }
+    };
+
+    const onPressDelete = async () => {
+        setLoading(true);
+        try {
+            await axiosInstance.delete('/deleteUserReview', {
+                data: {
+                    email,
+                    bookId: clickedBookId,
+                },
+            });
+            setStarRating(0);
+            setReview('');
+            setHasPreviousReview(false);
+            Alert.alert('Review deleted successfully!', 'Your review has been removed.');
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            Alert.alert('Error', 'Failed to delete the review. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.ratingContainer}>
-                <Text style={styles.textHeading}>Rate the Book:</Text>
-                <StarRating
-                    rating={starRating}
-                    onChange={setStarRating}
-                    starSize={scale(35)}
-                    color='#041E42'
-                />
-            </View>
-            <View style={styles.ratingContainer}>
-                <Text style={styles.textHeading}>Review the Book:</Text>
-                <TextInput
-                    style={[styles.input, styles.descriptionInput]}
-                    placeholder='Enter Book Review'
-                    multiline
-                    numberOfLines={15}
-                    value={review}
-                    onChangeText={setReview}
-                />
-            </View>
-            <TouchableOpacity
-                style={styles.submitButton}
-                onPress={onPressSubmit}>
-                <Text style={styles.submitText}>Submit</Text>
-            </TouchableOpacity>
+            {loading ? (
+                <ActivityIndicator size="large" color="#041E42" />
+            ) : (
+                <>
+                    <View style={styles.ratingContainer}>
+                        <Text style={styles.textHeading}>Rate the Book:</Text>
+                        <StarRating
+                            rating={starRating}
+                            onChange={setStarRating}
+                            starSize={scale(35)}
+                            color='#041E42'
+                        />
+                    </View>
+                    <View style={styles.ratingContainer}>
+                        <Text style={styles.textHeading}>Review the Book:</Text>
+                        <TextInput
+                            style={[styles.input, styles.descriptionInput]}
+                            placeholder='Enter Book Review'
+                            multiline
+                            numberOfLines={15}
+                            value={review}
+                            onChangeText={setReview}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        style={styles.submitButton}
+                        onPress={onPressSubmit}>
+                        <Text style={styles.submitText}>Submit</Text>
+                    </TouchableOpacity>
+                    {hasPreviousReview && (
+                        <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={onPressDelete}>
+                            <FontAwesome5 name="trash-alt" size={scale(20)} color="red" />
+                        </TouchableOpacity>
+                    )}
+                </>
+            )}
         </SafeAreaView>
     );
 };
@@ -121,7 +166,7 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         backgroundColor: '#041E42',
-        marginTop: scale(70),
+        marginTop: scale(20),
         height: scale(50),
         width: scale(200),
         alignSelf: 'center',
@@ -129,8 +174,20 @@ const styles = StyleSheet.create({
         borderRadius: scale(10),
     },
     submitText: {
-        color: '#FFFFFF',
-        fontSize: scale(19),
         textAlign: 'center',
+        fontSize: scale(20),
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    deleteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: scale(20),
+        alignSelf: 'center',
+    },
+    deleteText: {
+        marginLeft: scale(10),
+        fontSize: scale(18),
+        color: 'red',
     },
 });
