@@ -4,6 +4,7 @@ import axios from 'axios';
 import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
+import {GOOGLEAPI_KEY} from '@env'
 
 const Homescreen = ({navigation, route}) => {
 
@@ -19,7 +20,7 @@ const Homescreen = ({navigation, route}) => {
         params: {
           q: search,
           maxResults: 20,
-          key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
+          key:GOOGLEAPI_KEY
         }
       });
       const books = response.data.items.map(item => ({

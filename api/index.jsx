@@ -9,7 +9,12 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const cloudinary = require('../assets/utils/cloudinaryConfig.jsx');
 
+// import {MONGODB_LINK, USER_EMAIL, USEREMAIL_PASS} from '@env';
+// const { MONGODB_LINK, USER_EMAIL, USEREMAIL_PASS } = require('@env');
 
+// const MONGODB_LINK = process.env.MONGODB_LINK;
+// const USER_EMAIL = process.env.USER_EMAIL;
+// const USEREMAIL_PASS = process.env.USEREMAIL_PASS;
 
 const app = express();
 const port = 8000;

@@ -5,6 +5,7 @@ import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import cheerio from 'cheerio';
+import {GOOGLEAPI_KEY} from '@env'
 
 const BookDetails = ({ navigation, route }) => {
     const { clickedBookId } = route.params;
@@ -30,7 +31,7 @@ const BookDetails = ({ navigation, route }) => {
         try {
             const response = await axiosInstance.get(`https://www.googleapis.com/books/v1/volumes/${clickedBookId}`, {
                 params: {
-                    key: 'AIzaSyCVp6vomUM6vgWDss0MEVy8UBYhkiFf27s'
+                    key: GOOGLEAPI_KEY
                 }
             });
             const bookInfo = response.data.volumeInfo;
