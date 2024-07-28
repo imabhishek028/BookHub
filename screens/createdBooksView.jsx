@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: scale(5),
+    gap:scale(5)
   },
   descriptionContainer: {
     padding: scale(10),

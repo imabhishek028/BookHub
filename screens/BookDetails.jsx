@@ -1,9 +1,10 @@
-import { SafeAreaView, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import axiosInstance from '../assets/utils/axiosConfig';
 import { scale } from 'react-native-size-matters';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import cheerio from 'cheerio';
 
 const BookDetails = ({ navigation, route }) => {
     const { clickedBookId } = route.params;
@@ -60,9 +61,9 @@ const BookDetails = ({ navigation, route }) => {
         }
     };
 
-    const onPressReviews=()=>{
-        navigation.navigate('Reviews',{clickedBookId})
-    }
+    const onPressReviews = () => {
+        navigation.navigate('Reviews', { clickedBookId });
+    };
 
     const addToFavourites = async () => {
         try {
@@ -111,7 +112,7 @@ const BookDetails = ({ navigation, route }) => {
         } catch (error) {
             console.error('Error buying book', error);
         }
-    }
+    };
 
     if (loading) {
         return (
@@ -128,10 +129,15 @@ const BookDetails = ({ navigation, route }) => {
             </SafeAreaView>
         );
     }
+
     const onPressReview = () => {
         navigation.navigate('Review', { email, clickedBookId });
-    }
+    };
 
+    const parseDescription = (html) => {
+        const $ = cheerio.load(html);
+        return $.text();
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -150,7 +156,7 @@ const BookDetails = ({ navigation, route }) => {
                 </Text>
                 <View style={styles.descriptionContainer}>
                     <Text style={styles.description}>
-                        {bookData.description}
+                        {parseDescription(bookData.description)}
                     </Text>
                 </View>
                 <Text style={styles.price}>
@@ -174,7 +180,7 @@ const BookDetails = ({ navigation, route }) => {
                 </TouchableOpacity>
                 <View style={{ flexDirection: 'row' }}>
                     <TouchableOpacity
-                    onPress={onPressReviews}>
+                        onPress={onPressReviews}>
                         <Text style={styles.ReviewText}>
                             Reviews
                         </Text>
@@ -233,14 +239,13 @@ const styles = StyleSheet.create({
         marginBottom: scale(10),
         borderRadius: scale(10),
         elevation: 2,
-
     },
     description: {
         fontSize: scale(16),
         color: 'black',
         textAlign: 'left',
         lineHeight: scale(22),
-        padding: scale(10)
+        padding: scale(10),
     },
     price: {
         fontSize: scale(18),
