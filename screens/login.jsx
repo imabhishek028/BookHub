@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, View, StatusBar, Image, KeyboardAvoidingView, Keyboard, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, StatusBar, Image, KeyboardAvoidingView, Keyboard, TouchableOpacity, Alert, TouchableNativeFeedback } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { scale } from 'react-native-size-matters';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -52,6 +52,10 @@ const Login = ({ navigation }) => {
     }
   };
 
+  const onPressForgotPassword=()=>{
+    navigation.navigate('Email')
+  }
+
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -95,7 +99,10 @@ const Login = ({ navigation }) => {
           </View>
           <View style={styles.optionsRow}>
             <Text style={styles.text1}>Keep me logged in</Text>
+            <TouchableOpacity
+            onPress={onPressForgotPassword}>
             <Text style={styles.text2}>Forgot Password</Text>
+            </TouchableOpacity>
           </View>
         </View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

@@ -28,7 +28,12 @@ const User = require('./models/user.jsx');
 const Review = require('./models/reviews.jsx');
 const { log } = require('console');
 
+const generateSecretKey = () => {
+  const secret = crypto.randomBytes(3).toString("hex");
+  return secret;
+}
 
+const secretKey = generateSecretKey();
 
 const sendChangePasswordMail = async (email, verificationToken) => {
   const transporter = nodemailer.createTransport({
@@ -43,7 +48,7 @@ const sendChangePasswordMail = async (email, verificationToken) => {
     from: "bookhub.com <imabhishek028@gmail.com>",
     to: email,
     subject: 'Email Change Password',
-    text: `Your Temporary password is `,
+    text: `Your passKey is : ${secretKey}`,
   };
 
   try {
@@ -53,6 +58,8 @@ const sendChangePasswordMail = async (email, verificationToken) => {
     console.log(`Error sending mail: ${error}`);
   }
 };
+
+
 
 // Register endpoint
 app.post('/register', async (req, res) => {
@@ -87,6 +94,51 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: `Error logging in ${error}` });
   }
 });
+
+//ForgotPassword
+app.post('/forgotPasswordEmail', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(404).json({ message: "Fill in all the fields" })
+    }
+    const user = await User.findOne({ email: email })
+    if (!user) {
+      return res.status(201).json({ message: 'No account associated with this email' })
+    }
+    else {
+      await sendChangePasswordMail(email, secretKey);
+      return res.status(200).json({ message: "Email sent" })
+    }
+  } catch (err) {
+    console.log(`Error sending mail in: ${err}`);
+    res.status(500).json({ message: `Error sending mail in ${err}` });
+  }
+})
+
+// endpoint to reset user password:
+app.post('/resetPassword', async (req, res) => {
+  try {
+    const { email, passkey, password } = req.body;
+
+    const user = await User.findOne({ email: email })
+    if (!user) {
+      return res.status(404).json({ message: 'No account associated with this email' })
+    } else {
+      if (passkey == secretKey) {
+        user.password = password;
+        await user.save();
+        return res.status(200).json({ message: "Password Updated" })
+      } else {
+        return res.status(400).json({ message: "Incorrect passkey" })
+      }
+    }
+  } catch (err) {
+    console.log(`Error updating password : ${err}`);
+    res.status(500).json({ message: `Error updating password ${err}` });
+  }
+})
 
 // Get user info endpoint
 app.get('/userProfile', async (req, res) => {
@@ -383,28 +435,47 @@ app.get('/getBookReviews', async (req, res) => {
 
 // delete the review
 app.delete('/deleteUserReview', async (req, res) => {
-  try{
-    const {email,bookId}=req.body;
-    const bookReviews = await Review.findOne({bookId});
-    if(!bookReviews){
-      return res.status(404).json({message:"Book not found"})
-    }else{
+  try {
+    const { email, bookId } = req.body;
+    const bookReviews = await Review.findOne({ bookId });
+    if (!bookReviews) {
+      return res.status(404).json({ message: "Book not found" })
+    } else {
       const userReview = bookReviews.reviews.find(r => r.userid.toString() === email)
-      if(!userReview){
-        return res.status(404).json({message:"User not found"})
-      }else{
+      if (!userReview) {
+        return res.status(404).json({ message: "User not found" })
+      } else {
         bookReviews.reviews = bookReviews.reviews.filter(user => user.userid !== email);
         console.log(bookReviews)
         await bookReviews.save()
-        return  res.status(200).json({message:"Book Review by the user deleted"})
+        return res.status(200).json({ message: "Book Review by the user deleted" })
       }
     }
-  }catch (error) {
+  } catch (error) {
     console.error('Error deleting Review:', error);
     return res.status(500).json({ message: 'Error Deleting review' });
   }
 })
 
+// endpoint to update user likes:
+app.post('/updateLikes', async (req, res) => {
+  try {
+    const { email, bodyId } = req.body;
+    const bookReview = await Review.findOne({ bookId })
+    if (!bookReview) {
+      return res.status(404).json({ message: "Book not found" })
+    } else {
+      const userReview = bookReview.reviews.find(r => r.userid.toString() === email)
+      if (!userReview) {
+        return res.status(404).json({ message: "User not found" })
+      } else {
 
+      }
+    }
+  } catch (err) {
+    console.error('Error deleting Review:', error);
+    return res.status(500).json({ message: 'Error Deleting review' });
+  }
+})
 
 

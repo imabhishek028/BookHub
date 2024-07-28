@@ -20,6 +20,8 @@ import createdBooksView from '../screens/createdBooksView';
 import CreatedBooksView from '../screens/createdBooksView';
 import ChangePassword from '../screens/ChangePassword';
 import ReviewBook from '../screens/ReviewBook';
+import ForgotPassword from '../screens/ForgotPassword';
+import Email from '../screens/Email';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -177,6 +179,16 @@ export default function StackNavigator() {
               fontSize: scale(18),
             }
           }} />
+            <Stack.Screen name='Forgot Password'
+         component={ForgotPassword} 
+         options={{
+            headerShown:false
+          }}/>
+          <Stack.Screen name='Email'
+         component={Email} 
+         options={{
+            headerShown:false
+          }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
