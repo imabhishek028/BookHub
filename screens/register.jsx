@@ -78,14 +78,6 @@ const Register = ({ navigation }) => {
               secureTextEntry
             />
           </View>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.text1}>
-              Keep me logged in
-            </Text>
-            <Text style={styles.text2}>
-              Forgot Password
-            </Text>
-          </View>
         </View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.loginView}>
