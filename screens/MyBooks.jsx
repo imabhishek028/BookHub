@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     },
     publishYearText: {
         fontSize: scale(12),
-        color: 'gray',
+        color: '#808080',
     },
     yearText: {
         fontSize: scale(12),

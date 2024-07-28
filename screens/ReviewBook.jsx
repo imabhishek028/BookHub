@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: scale(20),
         fontWeight: 'bold',
-        color: 'white',
+        color: '#FFFFFF',
     },
     deleteButton: {
         flexDirection: 'row',
@@ -188,6 +188,6 @@ const styles = StyleSheet.create({
     deleteText: {
         marginLeft: scale(10),
         fontSize: scale(18),
-        color: 'red',
+        color: '#FF0000',
     },
 });

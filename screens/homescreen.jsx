@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   publishYearText: {
     fontSize: scale(12),
-    color: 'gray',
+    color: '#808080',
   },
   yearText:{
     fontSize: scale(12),
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: scale(12),
-    color: 'gray',
+    color: '#808080',
   },
   ratingValue: {
     fontSize: scale(12),
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   ratingCount: {
     fontSize: scale(12),
-    color: 'gray',
+    color: '#808080',
     marginLeft: scale(5),
   }
 });

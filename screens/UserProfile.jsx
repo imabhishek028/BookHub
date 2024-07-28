@@ -241,9 +241,9 @@ const styles = StyleSheet.create({
     infoBox: {
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFF',
+        backgroundColor: '#FFFFFF',
         borderRadius: 15,
-        shadowColor: '#000',
+        shadowColor: '#000000',
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 5,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
         marginBottom: scale(10),
     },
     typeText: {
-        color: 'gray',
+        color: '#808080',
         flex: 1,
         fontSize: scale(14),
     },
@@ -266,11 +266,11 @@ const styles = StyleSheet.create({
     },
     input: {
         borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        borderBottomColor: '#cccccc',
         fontSize: scale(16),
         padding: scale(10),
         flex: 2,
-        color: 'black',
+        color: '#000000',
     },
     saveButton: {
         backgroundColor: '#041E42',
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
         fontSize: scale(16),
     },
     passwordText:{
-      color: 'blue',
+      color: '#0000FF',
       fontSize: scale(14),
     },
     logOut:{

@@ -126,12 +126,12 @@ const styles = StyleSheet.create({
     },
     emailText: {
         fontSize: scale(12),
-        color: '#ccc',
+        color: '#CCCCCC',
         marginBottom: scale(5),
     },
     reviewText: {
         fontSize: scale(16),
-        color: '#333',
+        color: '#333333',
         marginBottom: scale(5),
     },
     ratingContainer: {

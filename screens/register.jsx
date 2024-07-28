@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     fontSize: scale(12)
   },
   text2: {
-    color: 'blue',
+    color: '#0000FF',
     marginTop: scale(12),
     fontSize: scale(12),
     marginLeft: scale(100),
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: scale(14)
   },
   text4: {
-    color: 'blue',
+    color: '#0000FF',
     marginTop: scale(12),
     fontSize: scale(14)
   },

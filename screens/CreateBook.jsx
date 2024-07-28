@@ -95,7 +95,7 @@ const CreateBook = ({navigation}) => {
               />
             ) : (
               <Image
-                source={require('../assets/nocoverimage.png')}
+                source={require('../assets/nocoverimage.jpeg')}
                 style={styles.image}
               />
             )}

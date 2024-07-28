@@ -223,13 +223,13 @@ const styles = StyleSheet.create({
     },
     author: {
         fontSize: scale(18),
-        color: 'gray',
+        color: '#808080',
         textAlign: 'center',
         marginBottom: scale(10),
     },
     publishedDate: {
         fontSize: scale(16),
-        color: 'gray',
+        color: '#808080',
         textAlign: 'center',
         marginBottom: scale(20),
     },
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: scale(16),
-        color: 'black',
+        color: '#000000',
         textAlign: 'left',
         lineHeight: scale(22),
         padding: scale(10),
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     price: {
         fontSize: scale(18),
         fontWeight: 'bold',
-        color: 'green',
+        color: '#00FF00',
         textAlign: 'center',
         marginBottom: scale(20),
     },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         fontSize: scale(18),
-        color: 'red',
+        color: '#FF0000',
         textAlign: 'center',
     },
     ReviewText: {

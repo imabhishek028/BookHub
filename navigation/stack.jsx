@@ -171,8 +171,8 @@ export default function StackNavigator() {
            <Stack.Screen name='Review'
          component={ReviewBook} 
          options={{
-            tabBarLabel: 'Review',
-            title: 'Review',
+            tabBarLabel: 'My Review',
+            title: 'My Review',
             headerTintColor: '#041E42',
             headerTitleStyle: {
               fontWeight: 'bold',

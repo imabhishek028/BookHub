@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     fontSize: scale(12)
   },
   text2: {
-    color: 'blue',
+    color: '#0000FF',
     fontSize: scale(12),
   },
   loginButton: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: scale(14)
   },
   text4: {
-    color: 'blue',
+    color: '#0000FF',
     fontSize: scale(14),
     marginLeft: scale(5)
   },
