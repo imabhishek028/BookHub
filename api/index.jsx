@@ -28,10 +28,9 @@ const User = require('./models/user.jsx');
 const Review = require('./models/reviews.jsx');
 const { log } = require('console');
 
-const generateSecretKey = () => crypto.randomBytes(32).toString("hex");
-const secretKey = generateSecretKey();
 
-const sendVerificationEmail = async (email, verificationToken) => {
+
+const sendChangePasswordMail = async (email, verificationToken) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -43,8 +42,8 @@ const sendVerificationEmail = async (email, verificationToken) => {
   const mailOptions = {
     from: "bookhub.com <imabhishek028@gmail.com>",
     to: email,
-    subject: 'Email Verification',
-    text: `Please click on the link to verify your email: http://192.168.52.122:8000/verify/${verificationToken}`,
+    subject: 'Email Change Password',
+    text: `Your Temporary password is `,
   };
 
   try {
@@ -301,54 +300,110 @@ app.post('/updatePassword', async (req, res) => {
   }
 })
 
-//Add review 
 app.post('/review', async (req, res) => {
   try {
     const { email, bookId, rating, review } = req.body;
-
+    console.log('Received data:', { email, bookId, rating, review });
     if (!email || !bookId || !rating || !review) {
       return res.status(400).json({ message: 'Invalid input data' });
     }
 
-    const userReview = await Review.findOne({ bookId, userid: email });
-    if (userReview) {
-      userReview.rating = rating;
-      userReview.reviewBody = review;
-      await userReview.save();
-      return res.status(200).json({ message: 'Review added successfully' });
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    else {
-      console.log(bookId);
-      const newReview = await Review.create({ bookId, userid: email, rating, reviewBody: review });
-      console.log(newReview);
+
+    let bookReview = await Review.findOne({ bookId: bookId });
+
+    if (bookReview) {
+      const userReview = bookReview.reviews.find(r => r.userid === email);
+      if (userReview) {
+        userReview.rating = rating;
+        userReview.reviewBody = review;
+        await bookReview.save();
+        return res.status(200).json({ message: 'Review added successfully' });
+      } else {
+        bookReview.reviews.push({ userid: email, rating, reviewBody: review });
+        await bookReview.save();
+        return res.status(200).json({ message: 'Review added successfully' });
+      }
+    } else {
+      bookReview = await Review.create({ bookId: bookId, reviews: [{ userid: email, rating, reviewBody: review }] })
       return res.status(200).json({ message: 'Review added successfully' });
     }
 
   } catch (err) {
-    console.error(`Error Reviewing: ${err.message}`);
-    return res.status(500).json({ message: err.message || err });
+    console.error(`Error : ${err}`);
+    return res.status(500).json({ message: "Error reviewing the book" });
   }
 });
 
 
-// end point to get exsisting review
+
+// get current review to edit
 app.get('/getUserReview', async (req, res) => {
   try {
-    const { email, bookId } = req.query;
+    const { email, bookId } = req.body;
+    const book = await Review.findOne({ bookId })
+    console.log(book)
+    if (book) {
+      const userReview = book.reviews.find(r => r.userid.toString() === email)
+      console.log(userReview)
+      if (userReview) {
+        return res.status(200).json({ book })
+      }
+      else {
+        return res.status(404).send('User is commenting for the first time')
+      }
+    } else {
+      return res.status(404).send('Book not found.')
+    }
+  } catch (err) {
+    console.error(`Error getting user  Review: ${err}`);
+    return res.status(500).json({ message: "Error reviewing the book" });
+  }
+})
 
-    if (!email || !bookId) {
-      return res.status(400).json({ message: 'Invalid input data' });
+// end pooint to get all the reviews for a book
+app.get('/getBookReviews', async (req, res) => {
+  try {
+    const { bookId } = req.params;
+    const bookReviews = await Review.findOne(bookId)
+    if (!bookReviews) {
+      console.log('No Reviews for the book')
+      return res.status(201).json({ message: "No Review for the book found" })
+    } else {
+      return res.status(200).json({ bookReviews })
     }
-    const review = await Review.findOne({ bookId, userid: email });
-    if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-    return res.status(200).json(review);
   } catch (error) {
     console.error('Error fetching review:', error);
     return res.status(500).json({ message: 'Error fetching review' });
   }
-});
+})
+
+// delete the review
+app.delete('/deleteUserReview', async (req, res) => {
+  try{
+    const {email,bookId}=req.body;
+    const bookReviews = await Review.findOne({bookId});
+    if(!bookReviews){
+      return res.status(404).json({message:"Book not found"})
+    }else{
+      const userReview = bookReviews.reviews.find(r => r.userid.toString() === email)
+      if(!userReview){
+        return res.status(404).json({message:"User not found"})
+      }else{
+        bookReviews.reviews = bookReviews.reviews.filter(user => user.userid !== email);
+        console.log(bookReviews)
+        await bookReviews.save()
+        return  res.status(200).json({message:"Book Review by the user deleted"})
+      }
+    }
+  }catch (error) {
+    console.error('Error deleting Review:', error);
+    return res.status(500).json({ message: 'Error Deleting review' });
+  }
+})
 
 
 
