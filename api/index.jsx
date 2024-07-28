@@ -461,26 +461,51 @@ app.post('/updateLikes', async (req, res) => {
   try {
     const { email, bookId, reviewId, action } = req.body;
     const bookReview = await Review.findOne({ bookId });
+
     if (!bookReview) {
       return res.status(404).json({ message: "Book not found" });
-    } else {
-      const userReview = bookReview.reviews.id(reviewId);
-      if (!userReview) {
-        return res.status(404).json({ message: "Review not found" });
-      } else {
-        if (action === 'like') {
-          userReview.likes += 1;
-        } else if (action === 'dislike') {
-          userReview.dislikes += 1;
+    }
+
+    const userReview = bookReview.reviews.id(reviewId);
+    if (!userReview) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    if (action === 'like') {
+      if (!userReview.likedBy.includes(email)) {
+        userReview.likes += 1;
+        userReview.likedBy.push(email);
+
+        // Remove from dislikedBy if exists
+        const index = userReview.dislikedBy.indexOf(email);
+        if (index > -1) {
+          userReview.dislikedBy.splice(index, 1);
+          userReview.dislikes -= 1;
         }
-        await bookReview.save();
-        return res.status(200).json({ message: "Review updated successfully" });
+      } else {
+        return res.status(400).json({ message: "User has already liked this review" });
+      }
+    } else if (action === 'dislike') {
+      if (!userReview.dislikedBy.includes(email)) {
+        userReview.dislikes += 1;
+        userReview.dislikedBy.push(email);
+
+        const index = userReview.likedBy.indexOf(email);
+        if (index > -1) {
+          userReview.likedBy.splice(index, 1);
+          userReview.likes -= 1;
+        }
+      } else {
+        return res.status(400).json({ message: "User has already disliked this review" });
       }
     }
+    await bookReview.save();
+    return res.status(200).json({ message: "Review updated successfully" });
   } catch (error) {
     console.error('Error updating review:', error);
     return res.status(500).json({ message: 'Error updating review' });
   }
 });
+
 
 

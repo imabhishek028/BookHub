@@ -45,7 +45,7 @@ const Reviews = ({ route }) => {
     const handleLikeDislike = async (reviewId, action) => {
         try {
             await axiosInstance.post('/updateLikes', {
-                email:email,
+                email: email,
                 bookId: clickedBookId,
                 reviewId,
                 action,
@@ -69,6 +69,7 @@ const Reviews = ({ route }) => {
     const renderItem = ({ item }) => {
         return (
             <View style={styles.renderItem}>
+                <Text style={styles.emailText}>Reviewer: {item.userid}</Text>
                 <Text style={styles.reviewText}>{item.reviewBody}</Text>
                 <View style={styles.ratingContainer}>
                     <Text style={styles.ratingText}>Rating: {item.rating}</Text>
@@ -76,11 +77,11 @@ const Reviews = ({ route }) => {
                 <View style={styles.likeDislikeContainer}>
                     <TouchableOpacity onPress={() => handleLikeDislike(item._id, 'like')}>
                         <FontAwesome5 name="thumbs-up" size={scale(20)} color="green" />
-                        <Text>{item.likes}</Text>
+                        <Text style={styles.number}>{item.likes}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleLikeDislike(item._id, 'dislike')}>
                         <FontAwesome5 name="thumbs-down" size={scale(20)} color="red" />
-                        <Text>{item.dislikes}</Text>
+                        <Text style={styles.number}>{item.dislikes}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -117,6 +118,11 @@ const styles = StyleSheet.create({
         borderRadius: scale(5),
         elevation: 1,
     },
+    emailText: {
+        fontSize: scale(14),
+        color: '#333',
+        marginBottom: scale(5),
+    },
     reviewText: {
         fontSize: scale(16),
         color: '#333',
@@ -136,4 +142,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: scale(100),
     },
+    number:{
+        color:'#000000'
+    }
 });

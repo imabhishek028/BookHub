@@ -13,7 +13,7 @@ const reviewSchema = new mongoose.Schema({
             },
             rating: {
                 type: Number,
-                required: true
+                required: true,
             },
             reviewBody: {
                 type: String,
@@ -26,10 +26,17 @@ const reviewSchema = new mongoose.Schema({
             dislikes: {
                 type: Number,
                 default: 0,
-            }
+            },
+            likedBy: [{
+                type: String,
+                default: [],
+            }],
+            dislikedBy: [{
+                type: String,
+                default: [],
+            }],
         }
     ],
-
 });
 
 const Review = mongoose.model('Review', reviewSchema);
