@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(morgan('dev'));
 
-mongoose.connect('mongodb+srv://imabhishek028:imabhishek028@cluster0.yjpyfbo.mongodb.net/')
+mongoose.connect(process.env.MONG0DB_LINK)
   .then(() => console.log("Connected to MongoDB"))
   .catch(error => console.log(error));
 
@@ -45,8 +45,8 @@ const sendChangePasswordMail = async (email, secretKey) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "imabhishek028@gmail.com",
-      pass: "gunq jmln msmz egto"
+      user: process.env.USER_EMAIL,
+      pass: process.env.USEREMAIL_PASS
     }
   });
 
