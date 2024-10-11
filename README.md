@@ -1,14 +1,23 @@
 # Book Hub
 
-## About the Task:
+## About the Application:
 
-Spider Software Induction Task 2 by Abhishek Jha, 110123005.
-
-This task was my first experience of learning backend and creating a full stack app. I have encorporated Mongo Atlas, Node.js and Express for backend. I have completed Level 1 and 2. I have tried to have a bug free application along with additional features like App Icon.
-
-There are areas that could have been improved specially in code writing, backend code could have been more clean. Moreover provided more time, I could have completed Level 3 as well. 
-
-It was a wonderfull learning experience. Looking forward to onsites and PIs.
+Book Hub is a Full Stack Cross Platform application that allows user to keep a track of their favourite books. It has following functionalities-
+1. User able to create and delete their own books.
+2. Read any book by simply searching. Using API to fetch books.
+3. Create, view and update profile page.
+4. Upload their profile picture.
+5. Secure login and logout.
+6. Password reset using email.
+7. Users and rate and review each book.
+8. User can edit or delete their reviews.
+9. User can like and dislike reviews.
+10. User can filter books based on genre and author etc.
+11. App Icon and app name.
+   
+Tech Stack Used- 
+Frontend - React Native
+Backend- Node Express Mongo
 
 ## Getting Started
 
